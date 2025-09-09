@@ -1,0 +1,23 @@
+{
+  "name": "socialapp",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node --watch ./dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.1"
+  }
+}
