@@ -1,21 +1,23 @@
 import { NextFunction,Request,Response} from "express";
 import { ApplicationException } from "../../utils/Error";
+import { signUpSchema } from "./user.validation";
 
 
 
 
 interface IUserServices{
-sayHello(req:Request,res:Response,next:NextFunction):Response,
-getUser(req:Request,res:Response,next:NextFunction):Response
+SignUp(req:Request,res:Response,next:NextFunction):Promise<Response>,
+
 }
 
 export class UserServices implements IUserServices{
-    constructor(){}
-    sayHello(req: Request, res: Response, next: NextFunction): Response {
-        throw new ApplicationException("Error From user",404)
-        return res.json({msg:"Hello from user services"})
+    constructor(){}   
+
+
+    async SignUp(req: Request, res: Response, next: NextFunction):Promise<Response>{
+        const{name,email,password,confirmPassword}=req.body
+        
+        return res.json({ msg: "Done"})
     }
-    getUser(req: Request, res: Response, next: NextFunction): Response {
-        return res.json({name:"Youssef",level:"4"})
-    }
+
 }
