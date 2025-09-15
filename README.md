@@ -81,5 +81,3 @@ src/
 - Zod (validation)
 - dotenv
 - chalk
-
-## License
