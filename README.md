@@ -2,6 +2,8 @@
 
 A Node.js social application backend built with Express, TypeScript, and MongoDB.
 
+> **Note:** This project is still under active development. Features and structure may change.
+
 ## Features
 
 - User registration with validation
@@ -78,4 +80,6 @@ src/
 - MongoDB (Mongoose)
 - Zod (validation)
 - dotenv
--
+- chalk
+
+## License
