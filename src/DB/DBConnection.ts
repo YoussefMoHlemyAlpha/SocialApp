@@ -3,7 +3,7 @@ import chalk from "chalk";
 
 export const connectDB=()=>{
     try{
-    mongoose.createConnection('mongodb://localhost:27017/')
+    mongoose.connect("mongodb://127.0.0.1:27017/socialapp")
     console.log(chalk.bgYellow("DB Connected sucessfully"));
     }catch(error){
     console.log(chalk.red("DB Connected failed"));
