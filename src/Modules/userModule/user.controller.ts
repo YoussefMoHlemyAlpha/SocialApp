@@ -13,3 +13,7 @@ userRouter.get('/',(req,res,next)=>{
 userRouter.post('/sign-up',validation(signUpSchema),userservice.SignUp)
 
 userRouter.post('/confirm-email',userservice.ConfirmEmail)
+
+
+
+
