@@ -34,9 +34,11 @@ const userSchema=new Schema<IUser>({
         expireAt:{
         type:Date
         }
+    },
+    isConfirmed:{
+        type:Boolean,
+        default:false
     }
-
-
 },
 {
     timestamps:true,

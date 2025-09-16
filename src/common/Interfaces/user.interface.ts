@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-
+import { Document } from "mongoose";
 
 export interface IUserServices{
 SignUp(req:Request,res:Response,next:NextFunction):Promise<Response>,
-
+ConfirmEmail(req:Request,res:Response,next:NextFunction):Promise<Response>
 }
 
 
@@ -16,7 +16,7 @@ SignUp(req:Request,res:Response,next:NextFunction):Promise<Response>,
 
 
 
-export interface IUser {
+export interface IUser extends Document{
     firstName: string;
     lastName: string;
     email: string;
@@ -26,7 +26,8 @@ export interface IUser {
         Otp: string;
         expireAt: Date
     };
-    phone:string
+    phone:string,
+    isConfirmed:boolean
 
 }
 

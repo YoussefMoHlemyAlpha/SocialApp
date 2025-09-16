@@ -11,15 +11,20 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "chalk": "^4.1.2",
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "mongoose": "^8.18.1",
+    "nanoid": "^5.1.5",
+    "nodemailer": "^7.0.6",
     "typescript": "^5.9.2",
     "zod": "^4.1.8"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
-    "@types/node": "^24.3.1"
+    "@types/node": "^24.3.1",
+    "@types/nodemailer": "^7.0.1"
   }
 }
