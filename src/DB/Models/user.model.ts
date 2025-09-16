@@ -1,6 +1,6 @@
 import { model, Schema} from "mongoose"
 import { IUser } from "../../common/Interfaces/user.interface"
-
+import { Roles } from "../../common/Enums/user.enum"
 
 const userSchema=new Schema<IUser>({
     firstName:{
@@ -38,6 +38,11 @@ const userSchema=new Schema<IUser>({
     isConfirmed:{
         type:Boolean,
         default:false
+    },
+    role:{
+        type:String,
+        enum:Object.values(Roles),
+        default:Roles.user
     }
 },
 {

@@ -6,14 +6,9 @@ import { signUpSchema } from './user.validation'
 export const userRouter=Router()
 const userservice=new UserServices()
 
-userRouter.get('/',(req,res,next)=>{
-    res.json({msg:"Hello from user Router"})
-})
 
 userRouter.post('/sign-up',validation(signUpSchema),userservice.SignUp)
 
 userRouter.post('/confirm-email',userservice.ConfirmEmail)
 
-
-
-
+userRouter.post('/login',userservice.Login)
