@@ -1,16 +1,18 @@
 # SocialApp
 
-A Node.js social application backend built with Express, TypeScript, and MongoDB.
+SocialApp is a modern backend API for a social networking platform, built with Node.js, Express, TypeScript, and MongoDB. The project is designed with scalability, modularity, and maintainability in mind.
 
-> **Note:** This project is still under active development. Features and structure may change.
+> **Status:** 🚧 _This project is under active development. Features, APIs, and structure are subject to change._
+
 
 ## Features
 
-- User registration with validation
-- Modular structure for scalability
-- MongoDB integration via Mongoose
+- User registration and authentication
+- Modular architecture for easy feature expansion
+- MongoDB integration using Mongoose
 - Centralized error handling
-- Environment configuration with dotenv
+- Input validation with Zod
+- Environment-based configuration
 
 ## Project Structure
 
@@ -24,6 +26,8 @@ src/
       user.enum.ts
     Interfaces/
       user.interface.ts
+    Types
+      user.type.ts
   config/
     .env
   DB/
@@ -35,6 +39,7 @@ src/
       user.repository.ts
   middleware/
     validation.middleware.ts
+    auth.middleware.ts
   Modules/
     postModule/
       post.controller.ts
@@ -45,7 +50,15 @@ src/
       user.services.ts
       user.validation.ts
   utils/
-    Error.ts
+    Emails/
+      emailEvents.ts
+      generatehtml.ts
+      sendEmail.ts
+     bcrypt.ts
+     Error.ts
+     jwt.ts
+     sucessHandler.ts
+    
 ```
 
 ## Getting Started
