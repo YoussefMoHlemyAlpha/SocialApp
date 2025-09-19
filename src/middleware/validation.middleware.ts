@@ -11,7 +11,7 @@ return(req:Request,res:Response,next:NextFunction)=>{
         ...req.query
     }
     const result=Schema.safeParse(data)
-    console.log(result);
+    
     
     
     if(!result.success){

@@ -21,3 +21,20 @@ export const resendOtpSchema=z.object({
     email:z.email()
 })
 
+export const LoginSchema=z.object({
+    email:z.email(),
+    password:z.string().min(4).max(20)
+})
+
+
+export const forgetPasswordSchema=z.object({
+    email:z.email()
+})
+
+
+export const resetPasswordSchema=z.object({
+    email:z.email(),
+    otp:z.string(),
+    password:z.string().min(4).max(20)
+
+})

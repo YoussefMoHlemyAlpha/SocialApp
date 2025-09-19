@@ -46,3 +46,16 @@ export class InvalidOtp extends ApplicationException{
         super(msg,400)
     }
 }
+
+
+export class InvalidToken extends ApplicationException{
+    constructor(msg:string){
+        super(msg,409)
+    }
+}
+
+export class OTPExpired extends ApplicationException{
+    constructor(msg:string){
+        super(msg,409)
+    }
+}

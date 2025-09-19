@@ -38,3 +38,16 @@ emailEventEmitter.on('resendEmailOtp',async({email,firstName,otp})=>{
   })
   console.log("email sent");
 })
+
+emailEventEmitter.on('resendPasswordOtp',async({email,firstName,otp})=>{
+    console.log("Email sending...........")
+  const subject='resend Password Otp'
+  const html=Template(otp,firstName,email)
+  await sendEmail({
+    to:email,
+    html,
+    subject
+  })
+  console.log("email sent");
+})
+

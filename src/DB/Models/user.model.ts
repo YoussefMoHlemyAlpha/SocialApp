@@ -2,6 +2,7 @@ import { model, Schema} from "mongoose"
 import { IUser } from "../../common/Interfaces/user.interface"
 import { Roles } from "../../common/Enums/user.enum"
 
+
 const userSchema=new Schema<IUser>({
     firstName:{
      type:String,
@@ -35,6 +36,14 @@ const userSchema=new Schema<IUser>({
         type:Date 
         }
     },
+    passwordOtp:{
+        Otp:{
+            type:String
+        },
+        expireAt:{
+        type:Date 
+        }
+    },
     isConfirmed:{
         type:Boolean,
         default:false
@@ -43,7 +52,8 @@ const userSchema=new Schema<IUser>({
         type:String,
         enum:Object.values(Roles),
         default:Roles.user
-    }
+    },
+    isCredentialUpdated:Date
 },
 {
     timestamps:true,

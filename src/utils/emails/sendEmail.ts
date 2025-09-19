@@ -18,10 +18,10 @@ const info=await transporter.sendMail({
     subject,
     html
 })
-console.log({info})
+
 }
 main().catch((err)=>{
-console.log(err);
+
 
 })
 }

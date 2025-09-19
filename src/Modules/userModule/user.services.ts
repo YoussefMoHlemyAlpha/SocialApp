@@ -1,14 +1,18 @@
-import e, { NextFunction,Request,Response} from "express";
-import { IUserServices } from "../../common/Interfaces/user.interface";
+import { NextFunction,Request,Response} from "express";
+import { Ipayload, IUser, IUserServices } from "../../common/Interfaces/user.interface";
 import { UserRepository } from "../../DB/Repository/user.repository";
 import { generateOtp } from "../../utils/emails/emailEvents";
 import { emailEventEmitter } from "../../utils/emails/emailEvents";
 import { compareText, hashText } from "../../utils/bcrypt";
 import jwt from 'jsonwebtoken'
 import { nanoid } from "nanoid";
-import { resendEmailOtpDTO, signUpDTO } from "./user.DTO";
-import { InvalidCredentials, InvalidOtp, NotConfirmed, NotFoundError, validationError } from "../../utils/Error";
+import { forgetPasswordDTO, LoginDTO, resendEmailOtpDTO, resetPasswordDTO, signUpDTO } from "./user.DTO";
+import { InvalidCredentials, InvalidOtp, NotConfirmed, NotFoundError, OTPExpired, validationError } from "../../utils/Error";
 import { sucessHandler } from "../../utils/sucessHandler";
+import { decodeToken } from "../../middleware/auth.middleware";
+import { TokenTypes } from "../../common/Enums/user.enum";
+
+
 
 export class UserServices implements IUserServices{
     private userRepo = new UserRepository();
@@ -20,7 +24,6 @@ export class UserServices implements IUserServices{
       try{
         const{firstName,lastName,email,password,confirmPassword}:signUpDTO=req.body
         const user =await this.userRepo.findByEmail(email)
-        console.log(user)
         if(user){
             return res.status(400).json({msg:"Email already exists"})
         }
@@ -59,7 +62,7 @@ ConfirmEmail=async(req: Request, res: Response, next: NextFunction): Promise<Res
 // service to handle user login
 Login=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
 
-    const{email,password}:{email:string,password:string}=req.body
+    const{email,password}:LoginDTO=req.body
     const user =await this.userRepo.findByEmail(email)
     if(!user){
        throw new NotFoundError("User not found")
@@ -75,11 +78,11 @@ let refreshSignature:string="";
 
 switch(user.role){
     case 'user':
-        accessSignature=process.env.user_acess_signature as string
+        accessSignature=process.env.user_access_signature as string
         refreshSignature=process.env.user_refresh_signature as string
         break;
     case 'admin':
-        accessSignature=process.env.admin_acess_signature as string
+        accessSignature=process.env.admin_access_signature as string
         refreshSignature=process.env.admin_refresh_signature as string
         break;
 
@@ -98,7 +101,7 @@ const refreshToken:string=jwt.sign(payload,refreshSignature,{expiresIn:'7d',jwti
 }
 
 
-
+// resend Emaitl Otp service
 resendEmailOtp=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
 const {email}:resendEmailOtpDTO= req.body;
 const user =await this.userRepo.findByEmail(email)
@@ -118,6 +121,69 @@ user.emailOtp={Otp:hashText(otp),expireAt:new Date(Date.now()+10*60*1000)}
 await user.save()
 return sucessHandler({res,msg:"Otp resent successfully",status:200})
 }
+
+// get user for testing authentication only not actual api 
+getuser(req: Request, res: Response, next: NextFunction): Response <IUser>{
+    const user=res.locals.user
+    return sucessHandler({res,status:200,data:user})
 }
+
+
+refreshToken =async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
+    
+    const authorization=req.headers.authorization
+    if(!authorization){
+        throw new validationError("in-valid token")
+    }
+    const {user,payload}:{user:IUser,payload:Ipayload}=await decodeToken({ authorization:authorization, tokenType: TokenTypes.refresh })
+    const accessToken:string=jwt.sign({id:user.id},process.env.user_access_signature as string ,{expiresIn:'1h',jwtid:payload.jti})
+    return sucessHandler({res,status:200,data:{ accessToken:accessToken}})
+}
+
+forgetPassword=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const{email}:forgetPasswordDTO=req.body
+    const user =await this.userRepo.findByEmail(email)
+    if(!user){
+        throw new NotFoundError("user not Found")
+    }
+    if(!user.isConfirmed){
+        throw new NotConfirmed('You are not Confirmed')
+    }
+const otp:string=generateOtp()
+emailEventEmitter.emit('resendPasswordOtp', { email, firstName:user.firstName, otp })
+user.passwordOtp={Otp:hashText(otp),expireAt:new Date(Date.now()+10*60*1000)}
+user.isCredentialUpdated=new Date(Date.now())
+await user.save()
+return sucessHandler({res,msg:"Otp resent successfully",status:200})
+}
+
+resetPassword=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const {email,otp,password}:resetPasswordDTO=req.body
+    const user = await this.userRepo.findByEmail(email)
+    if(!user){
+        throw new NotFoundError('user not Found')
+    }
+    if(!user.passwordOtp?.Otp){
+         throw new validationError(' please user forget password at first')
+    }
+    if(user.passwordOtp.expireAt.getTime()<=Date.now()){
+         throw new OTPExpired('OTP is Expired')
+    }
+    if(!compareText(otp,user.passwordOtp.Otp)){
+        throw new validationError('in-valid OTP')
+    }
+await this.userRepo.updateOne({
+  filter: { email: user.email},
+  updatedData: {
+    $set: { password: hashText(password) , isCredentialUpdated:new Date(Date.now())},
+    $unset: { passwordOtp: "" }
+  }
+});
+
+    return sucessHandler({res,status:200,msg:"password is changed sucessfully"})
+}
+}
+
+
 
 

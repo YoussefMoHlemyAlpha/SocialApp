@@ -1,4 +1,4 @@
-import { Model,FilterQuery, ProjectionType, QueryOptions, CreateOptions } from "mongoose";
+import { Model,FilterQuery, ProjectionType, QueryOptions, CreateOptions, UpdateQuery } from "mongoose";
 
 export class DatabaseRepository <T> {
 
@@ -29,8 +29,8 @@ async createOne({
   return this.model.create([data], options);
 }
 
+async updateOne({updatedData,filter}:{updatedData:UpdateQuery<T>,filter:UpdateQuery<T>}):Promise<T|null>{
+return this.model.findOneAndUpdate(filter,updatedData,{new:true})
 
-
-
-
+}
 }
