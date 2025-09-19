@@ -6,6 +6,7 @@ export interface IUserServices{
 SignUp(req:Request,res:Response,next:NextFunction):Promise<Response>,
 ConfirmEmail(req:Request,res:Response,next:NextFunction):Promise<Response>,
 Login(req:Request,res:Response,next:NextFunction):Promise<Response>
+resendEmailOtp(req:Request,res:Response,next:NextFunction):Promise<Response>
 }
 
 
@@ -26,7 +27,7 @@ export interface IUser extends Document{
     confirmPassword: string;
     emailOtp: {
         Otp: string;
-        expireAt: Date
+        expireAt: Date 
     };
     phone:string,
     isConfirmed:boolean,

@@ -15,3 +15,9 @@ export const signUpSchema=z.object({
         })
     }
 })
+
+
+export const resendOtpSchema=z.object({
+    email:z.email()
+})
+

@@ -18,3 +18,31 @@ export class validationError extends ApplicationException {
         super(msg,422)
     }
 }
+
+export class NotFoundError extends ApplicationException {
+
+    constructor(msg:string){
+        super(msg,404)
+    }
+}
+
+
+export class NotConfirmed extends ApplicationException{
+    constructor(msg:string){
+        super(msg,403)
+    }
+}
+
+
+export class InvalidCredentials extends ApplicationException{
+    constructor(msg:string){
+        super(msg,401)
+    }
+}
+
+
+export class InvalidOtp extends ApplicationException{
+    constructor(msg:string){
+        super(msg,400)
+    }
+}

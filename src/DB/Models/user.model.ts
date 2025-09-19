@@ -32,7 +32,7 @@ const userSchema=new Schema<IUser>({
             type:String
         },
         expireAt:{
-        type:Date
+        type:Date 
         }
     },
     isConfirmed:{
