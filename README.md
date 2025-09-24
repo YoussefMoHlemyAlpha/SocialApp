@@ -109,12 +109,6 @@ The S3 integration is managed in `utils/multer/s3config.ts` and `utils/multer/s3
 
 ---
 
-## API Endpoints
-
-- `POST /user/sign-up` — Register a new user
-- (More endpoints coming soon...)
-
----
 
 ## Technologies Used
 
