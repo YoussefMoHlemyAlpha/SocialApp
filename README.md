@@ -1,18 +1,24 @@
 # SocialApp
 
-SocialApp is a modern backend API for a social networking platform, built with Node.js, Express, TypeScript, and MongoDB. The project is designed with scalability, modularity, and maintainability in mind.
+SocialApp is a robust, scalable backend API for a modern social networking platform. Built with Node.js, Express, TypeScript, MongoDB, and AWS S3, it provides a solid foundation for user management, content sharing, and secure media storage. The architecture emphasizes modularity, maintainability, and extensibility for future growth.
 
 > **Status:** 🚧 _This project is under active development. Features, APIs, and structure are subject to change._
 
+---
 
 ## Features
 
-- User registration and authentication
-- Modular architecture for easy feature expansion
-- MongoDB integration using Mongoose
-- Centralized error handling
-- Input validation with Zod
-- Environment-based configuration
+- **User Registration & Authentication:** Secure sign-up and login with hashed passwords and JWT-based authentication.
+- **Modular Architecture:** Clean separation of concerns for easy feature expansion and maintenance.
+- **MongoDB Integration:** Efficient data storage and retrieval using Mongoose ODM.
+- **Centralized Error Handling:** Consistent and informative error responses across the API.
+- **Input Validation:** Robust request validation using Zod for data integrity.
+- **Environment-Based Configuration:** Flexible setup for different environments using dotenv.
+- **AWS S3 Integration:** Secure upload and storage of profile and cover images via Amazon S3.
+- **Email Notifications:** Utility functions for sending emails (e.g., verification, password reset).
+- **File Uploads:** Multer middleware for handling multipart/form-data and direct S3 uploads.
+
+---
 
 ## Project Structure
 
@@ -26,7 +32,7 @@ src/
       user.enum.ts
     Interfaces/
       user.interface.ts
-    Types
+    Types/
       user.type.ts
   config/
     .env
@@ -54,12 +60,17 @@ src/
       emailEvents.ts
       generatehtml.ts
       sendEmail.ts
-     bcrypt.ts
-     Error.ts
-     jwt.ts
-     sucessHandler.ts
-    
+    multer/
+      multer.ts
+      s3config.ts
+      s3.services.ts
+    bcrypt.ts
+    Error.ts
+    jwt.ts
+    sucessHandler.ts
 ```
+
+---
 
 ## Getting Started
 
@@ -69,7 +80,7 @@ src/
    ```
 
 2. **Configure environment variables:**
-   - Copy `src/config/.env` and set your values (e.g., `PORT`, database URI).
+   - Copy `src/config/.env` and set your values (e.g., `PORT`, database URI, JWT secret, AWS S3 credentials).
 
 3. **Build the project:**
    ```sh
@@ -81,16 +92,48 @@ src/
    npm start
    ```
 
+---
+
+## AWS S3 Configuration
+
+To enable image uploads, add the following to your `.env` file:
+
+```
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_REGION=your-region
+AWS_S3_BUCKET=your-bucket-name
+```
+
+The S3 integration is managed in `utils/multer/s3config.ts` and `utils/multer/s3.services.ts`.
+
+---
+
 ## API Endpoints
 
 - `POST /user/sign-up` — Register a new user
+- (More endpoints coming soon...)
 
-## Technologies
+---
 
-- Node.js
-- Express
-- TypeScript
-- MongoDB (Mongoose)
-- Zod (validation)
-- dotenv
-- chalk
+## Technologies Used
+
+- **Node.js** & **Express** — Backend framework
+- **TypeScript** — Type safety
+- **MongoDB** & **Mongoose** — Database and ODM
+- **Zod** — Input validation
+- **dotenv** — Environment configuration
+- **chalk** — Terminal string styling
+- **AWS S3** — Cloud storage for images
+- **Multer** — File upload middleware
+- **bcrypt** — Password hashing
+- **jsonwebtoken** — JWT authentication
+- **nodemailer** — Email sending
+
+---
+
+
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or
