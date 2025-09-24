@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { forgetPasswordSchema, resendOtpSchema, resetPasswordSchema, signUpSchema } from './user.validation'
+import { ConfirmEmailSchema, forgetPasswordSchema, resendOtpSchema, resetPasswordSchema, signUpSchema } from './user.validation'
 import { LoginSchema } from './user.validation'
 
 
@@ -13,3 +13,5 @@ export type LoginDTO = z.infer<typeof LoginSchema>
 export type forgetPasswordDTO=z.infer<typeof forgetPasswordSchema>
 
 export type resetPasswordDTO=z.infer<typeof resetPasswordSchema>
+
+export type confirmEmailDTO=z.infer<typeof ConfirmEmailSchema>

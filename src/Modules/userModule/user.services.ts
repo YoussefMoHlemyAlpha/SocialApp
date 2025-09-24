@@ -6,7 +6,7 @@ import { emailEventEmitter } from "../../utils/emails/emailEvents";
 import { compareText, hashText } from "../../utils/bcrypt";
 import jwt from 'jsonwebtoken'
 import { nanoid } from "nanoid";
-import { forgetPasswordDTO, LoginDTO, resendEmailOtpDTO, resetPasswordDTO, signUpDTO } from "./user.DTO";
+import { confirmEmailDTO, forgetPasswordDTO, LoginDTO, resendEmailOtpDTO, resetPasswordDTO, signUpDTO } from "./user.DTO";
 import { InvalidCredentials, InvalidOtp, NotConfirmed, NotFoundError, OTPExpired, validationError } from "../../utils/Error";
 import { sucessHandler } from "../../utils/sucessHandler";
 import { decodeToken } from "../../middleware/auth.middleware";
@@ -42,7 +42,7 @@ return res.status(500).json({ msg: "Internal server error" });
 
 //service to handle email confirmation
 ConfirmEmail=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
-    const{email,otp}:{email:string,otp:string}=req.body
+    const{email,otp}:confirmEmailDTO=req.body
     const user=await this.userRepo.findByEmail(email)
     if(!user){
         throw new NotFoundError("User not found")

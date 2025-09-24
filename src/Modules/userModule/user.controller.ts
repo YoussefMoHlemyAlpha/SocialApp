@@ -1,7 +1,7 @@
 import {Router} from 'express'
 import { UserServices } from './user.services'
 import { validation } from '../../middleware/validation.middleware'
-import { signUpSchema ,resendOtpSchema, LoginSchema, forgetPasswordSchema, resetPasswordSchema} from './user.validation'
+import { signUpSchema ,resendOtpSchema, LoginSchema, forgetPasswordSchema, resetPasswordSchema, ConfirmEmailSchema} from './user.validation'
 import { auth } from '../../middleware/auth.middleware'
 
 
@@ -11,7 +11,7 @@ const userservice=new UserServices()
 
 userRouter.post('/sign-up',validation(signUpSchema),userservice.SignUp)
 
-userRouter.post('/confirm-email',userservice.ConfirmEmail)
+userRouter.post('/confirm-email',validation(ConfirmEmailSchema),userservice.ConfirmEmail)
 
 userRouter.post('/login',validation(LoginSchema),userservice.Login)
 

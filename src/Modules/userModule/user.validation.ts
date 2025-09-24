@@ -38,3 +38,9 @@ export const resetPasswordSchema=z.object({
     password:z.string().min(4).max(20)
 
 })
+
+
+export const ConfirmEmailSchema=z.object({
+    email:z.email(),
+    otp:z.string()
+})
