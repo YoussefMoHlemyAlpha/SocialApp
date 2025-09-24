@@ -53,6 +53,10 @@ const userSchema=new Schema<IUser>({
         enum:Object.values(Roles),
         default:Roles.user
     },
+    profileImage:String,
+    coverImages:[{
+        type:String
+    }],
     isCredentialUpdated:Date
 },
 {

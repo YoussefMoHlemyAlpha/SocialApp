@@ -13,6 +13,7 @@ refreshToken(req:Request,res:Response,next:NextFunction):Promise<Response>,
 forgetPassword(req:Request,res:Response,next:NextFunction):Promise<Response>,
 resetPassword(req:Request,res:Response,next:NextFunction):Promise<Response>,
 imageProfile(req:Request,res:Response,next:NextFunction):void
+coverImages(req:Request,res:Response,next:NextFunction):void
 }
 
 
@@ -27,6 +28,8 @@ export interface IUser extends Document{
     isCredentialUpdated:Date,
     phone:string,
     isConfirmed:boolean,
+    profileImage:string,
+    coverImages:string[],
     role:Roles
 
 }

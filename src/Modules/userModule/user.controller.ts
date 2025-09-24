@@ -6,8 +6,10 @@ import { auth } from '../../middleware/auth.middleware'
 import { uploadFile } from '../../utils/multer/multer'
 
 
+
 export const userRouter=Router()
 const userservice=new UserServices()
+
 
 
 userRouter.post('/sign-up',validation(signUpSchema),userservice.SignUp)
@@ -26,8 +28,8 @@ userRouter.post('/reset-password',validation(resetPasswordSchema),userservice.re
 
 userRouter.get('/get-user',auth(),userservice.getuser)
 
-userRouter.patch('/profile-image',uploadFile({}).single('image'),userservice.imageProfile)
+userRouter.patch('/profile-image',auth(),uploadFile({}).single('image'),userservice.imageProfile)
 
-
+userRouter.patch('/cover-images',auth(),uploadFile({}).array('images',5),userservice.coverImages)
 
 

@@ -11,6 +11,8 @@ import { InvalidCredentials, InvalidOtp, NotConfirmed, NotFoundError, OTPExpired
 import { sucessHandler } from "../../utils/sucessHandler";
 import { decodeToken } from "../../middleware/auth.middleware";
 import { TokenTypes } from "../../common/Enums/user.enum";
+import { uploadSingleLargeFileS3 ,uploadSingleFileS3, uploadMultipleFiles } from "../../utils/multer/s3.services";
+import { HydratedDocument } from "mongoose";
 
 
 
@@ -45,13 +47,13 @@ ConfirmEmail=async(req: Request, res: Response, next: NextFunction): Promise<Res
     const{email,otp}:confirmEmailDTO=req.body
     const user=await this.userRepo.findByEmail(email)
     if(!user){
-        throw new NotFoundError("User not found")
+        throw new NotFoundError()
     }
     if(user.emailOtp.expireAt.getTime()<=Date.now()){
         throw new validationError("Otp expired")
     }
     if(!compareText(otp,user.emailOtp.Otp)){
-       throw new InvalidOtp("Invalid Otp")
+       throw new InvalidOtp()
     }
     user.isConfirmed=true
     user.emailOtp={Otp:"",expireAt:new Date()}
@@ -65,13 +67,13 @@ Login=async(req: Request, res: Response, next: NextFunction): Promise<Response> 
     const{email,password}:LoginDTO=req.body
     const user =await this.userRepo.findByEmail(email)
     if(!user){
-       throw new NotFoundError("User not found")
+       throw new NotFoundError()
     }
     if(!user.isConfirmed){
-       throw new NotConfirmed("Please confirm your email first")
+       throw new NotConfirmed()
     }
     if(!compareText(password,user.password)){
-        throw new InvalidCredentials("Invalid credentials")
+        throw new InvalidCredentials()
     }
 let accessSignature:string="";
 let refreshSignature:string="";
@@ -106,7 +108,7 @@ resendEmailOtp=async(req: Request, res: Response, next: NextFunction): Promise<R
 const {email}:resendEmailOtpDTO= req.body;
 const user =await this.userRepo.findByEmail(email)
 if(!user){
-    throw new NotFoundError("User not found")
+    throw new NotFoundError()
 } 
 
 if(user.isConfirmed){
@@ -144,10 +146,10 @@ forgetPassword=async(req: Request, res: Response, next: NextFunction): Promise<R
     const{email}:forgetPasswordDTO=req.body
     const user =await this.userRepo.findByEmail(email)
     if(!user){
-        throw new NotFoundError("user not Found")
+        throw new NotFoundError()
     }
     if(!user.isConfirmed){
-        throw new NotConfirmed('You are not Confirmed')
+        throw new NotConfirmed()
     }
 const otp:string=generateOtp()
 emailEventEmitter.emit('resendPasswordOtp', { email, firstName:user.firstName, otp })
@@ -161,13 +163,13 @@ resetPassword=async(req: Request, res: Response, next: NextFunction): Promise<Re
     const {email,otp,password}:resetPasswordDTO=req.body
     const user = await this.userRepo.findByEmail(email)
     if(!user){
-        throw new NotFoundError('user not Found')
+        throw new NotFoundError()
     }
     if(!user.passwordOtp?.Otp){
          throw new validationError(' please user forget password at first')
     }
     if(user.passwordOtp.expireAt.getTime()<=Date.now()){
-         throw new OTPExpired('OTP is Expired')
+         throw new OTPExpired()
     }
     if(!compareText(otp,user.passwordOtp.Otp)){
         throw new validationError('in-valid OTP')
@@ -183,11 +185,25 @@ await this.userRepo.updateOne({
     return sucessHandler({res,status:200,msg:"password is changed sucessfully"})
 }
 
-imageProfile(req: Request, res: Response, next: NextFunction): void {
-    console.log({file:req.file});
+imageProfile=async(req: Request, res: Response, next: NextFunction)=>{
     
+    const user=res.locals.user as HydratedDocument<IUser>
+    const path=await uploadSingleLargeFileS3({file:req.file as Express.Multer.File ,path:"profileImages"})
+    user.profileImage=path
+    await user.save()
+    sucessHandler({res,data:path,status:200,msg:"Profile Image uploaded successfully"})  
+}
+
+coverImages=async(req: Request, res: Response, next: NextFunction)=> {
+    const user=res.locals.user as HydratedDocument<IUser>
+    const paths=await uploadMultipleFiles({files:req.files as Express.Multer.File[],path:'coverImages'})
+    user.coverImages=paths 
+    await user.save()
+    sucessHandler({res,data:paths,status:200,msg:"Cover Images uploaded successfully"})  
 }
 }
+
+
 
 
 
