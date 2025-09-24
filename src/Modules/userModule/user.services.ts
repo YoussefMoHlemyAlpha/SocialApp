@@ -182,6 +182,11 @@ await this.userRepo.updateOne({
 
     return sucessHandler({res,status:200,msg:"password is changed sucessfully"})
 }
+
+imageProfile(req: Request, res: Response, next: NextFunction): void {
+    console.log({file:req.file});
+    
+}
 }
 
 

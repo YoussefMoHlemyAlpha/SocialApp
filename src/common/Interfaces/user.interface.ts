@@ -11,7 +11,8 @@ resendEmailOtp(req:Request,res:Response,next:NextFunction):Promise<Response>,
 getuser(req:Request,res:Response,next:NextFunction):Response,
 refreshToken(req:Request,res:Response,next:NextFunction):Promise<Response>,
 forgetPassword(req:Request,res:Response,next:NextFunction):Promise<Response>,
-resetPassword(req:Request,res:Response,next:NextFunction):Promise<Response>
+resetPassword(req:Request,res:Response,next:NextFunction):Promise<Response>,
+imageProfile(req:Request,res:Response,next:NextFunction):void
 }
 
 

@@ -3,6 +3,7 @@ import { UserServices } from './user.services'
 import { validation } from '../../middleware/validation.middleware'
 import { signUpSchema ,resendOtpSchema, LoginSchema, forgetPasswordSchema, resetPasswordSchema, ConfirmEmailSchema} from './user.validation'
 import { auth } from '../../middleware/auth.middleware'
+import { uploadFile } from '../../utils/multer/multer'
 
 
 export const userRouter=Router()
@@ -24,6 +25,8 @@ userRouter.post('/forget-password',validation(forgetPasswordSchema),userservice.
 userRouter.post('/reset-password',validation(resetPasswordSchema),userservice.resetPassword)
 
 userRouter.get('/get-user',auth(),userservice.getuser)
+
+userRouter.patch('/profile-image',uploadFile({}).single('image'),userservice.imageProfile)
 
 
 

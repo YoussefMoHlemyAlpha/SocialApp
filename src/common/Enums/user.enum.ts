@@ -9,3 +9,8 @@ export enum TokenTypes{
     access="access",
     refresh="refresh"
 }
+
+export enum StoreIn{
+    disk="disk",
+    memory="memory"
+}
