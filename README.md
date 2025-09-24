@@ -130,4 +130,4 @@ The S3 integration is managed in `utils/multer/s3config.ts` and `utils/multer/s3
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or
+Contributions are welcome! Please open an issue or submit a pull request for any improvements 
