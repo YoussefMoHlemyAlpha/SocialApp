@@ -7,14 +7,16 @@ import { compareText, hashText } from "../../utils/bcrypt";
 import jwt from 'jsonwebtoken'
 import { nanoid } from "nanoid";
 import { confirmEmailDTO, forgetPasswordDTO, LoginDTO, resendEmailOtpDTO, resetPasswordDTO, signUpDTO } from "./user.DTO";
-import { InvalidCredentials, InvalidOtp, NotConfirmed, NotFoundError, OTPExpired, validationError } from "../../utils/Error";
+import { ApplicationException, InvalidCredentials, InvalidOtp, NotConfirmed, NotFoundError, OTPExpired, preSignedurlException, validationError } from "../../utils/Error";
 import { sucessHandler } from "../../utils/sucessHandler";
 import { decodeToken } from "../../middleware/auth.middleware";
 import { TokenTypes } from "../../common/Enums/user.enum";
-import { uploadSingleLargeFileS3 ,uploadSingleFileS3, uploadMultipleFiles } from "../../utils/multer/s3.services";
+import { uploadSingleLargeFileS3 ,uploadSingleFileS3, uploadMultipleFiles, createPreSignedUrl, getFile,CreateGetPreSignedUrl, deleteFile, deleteFiles } from "../../utils/multer/s3.services";
 import { HydratedDocument } from "mongoose";
+import { promisify } from "util";
+import { pipeline } from "stream";
 
-
+const createS3WriteStreamPipe=promisify(pipeline)
 
 export class UserServices implements IUserServices{
     private userRepo = new UserRepository();
@@ -200,6 +202,59 @@ coverImages=async(req: Request, res: Response, next: NextFunction)=> {
     user.coverImages=paths 
     await user.save()
     sucessHandler({res,data:paths,status:200,msg:"Cover Images uploaded successfully"})  
+}
+
+imageProfileWithPreSignedUrl=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const user=res.locals.user as HydratedDocument<IUser>
+    const{originalname,ContentType}:{originalname:string,ContentType:string}=req.body
+    const{Key,url}=await createPreSignedUrl({originalname,ContentType,path:`profileImages`})
+    user.Key=Key
+    await user.save()
+    return sucessHandler({res,data:{Key,url},status:200,msg:"Cover Images uploaded successfully"})  
+    
+}
+
+getandDownloadAttachment=async(req: Request, res: Response, next: NextFunction):Promise<void>=>{
+   const{downloadName}=req.query
+   const{path}=req.params as unknown as {path:string[]}
+   const Key=path.join('/')
+   const s3Response= await getFile({Key})
+   if(!s3Response?.Body){
+    throw new ApplicationException('failed to get File !',409)
+   }
+   res.setHeader('Content-Type',`${s3Response.ContentType}`||'application/octet-stream')
+   if(downloadName){
+    res.setHeader('Content-Disposition',`attachment; filename=${downloadName}`)
+   }
+   return  createS3WriteStreamPipe(s3Response.Body as NodeJS.ReadableStream,res)
+}
+getandDownloadAttachmentwithPreSignedUrl=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+   const{downloadName,download}=req.query
+   const{path}=req.params as unknown as {path:string[]}
+   const Key=path.join('/')
+   const url= await CreateGetPreSignedUrl({Key,downloadName:downloadName as string,download:download as string})
+   return sucessHandler({res,data:{url},status:200,msg:"Done"})  
+}
+DeleteFile=async(req: Request, res: Response, next: NextFunction): Promise<Response>=> {
+    const{Key}=req.query as {Key:string}
+    const results=await  deleteFile({Key:Key as string})
+    return sucessHandler({res,data:results,status:200,msg:"Done"})  
+
+
+}
+DeleteFiles=async(req: Request, res: Response, next: NextFunction): Promise<Response>=>{
+const { urls } = req.body;
+
+if (!Array.isArray(urls) || urls.length === 0) {
+
+return res.status(400).json({
+        success: false,
+        message: "urls must be a non-empty array of strings",
+      });
+      
+}
+const results=await  deleteFiles({urls})
+return sucessHandler({res,data:results,status:200,msg:"Done"})  
 }
 }
 

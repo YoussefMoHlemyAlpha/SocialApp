@@ -32,4 +32,12 @@ userRouter.patch('/profile-image',auth(),uploadFile({}).single('image'),userserv
 
 userRouter.patch('/cover-images',auth(),uploadFile({}).array('images',5),userservice.coverImages)
 
+userRouter.patch('/profile-image',auth(),userservice.imageProfileWithPreSignedUrl)
 
+userRouter.get('/upload/*path',userservice.getandDownloadAttachment)
+
+userRouter.get('/getordownloadfile',userservice.getandDownloadAttachment)
+
+userRouter.get('/getordownloadfileWithpresign',userservice.getandDownloadAttachmentwithPreSignedUrl)
+
+userRouter.delete('/delete-file',userservice.DeleteFile)

@@ -54,6 +54,7 @@ const userSchema=new Schema<IUser>({
         default:Roles.user
     },
     profileImage:String,
+    Key:String,
     coverImages:[{
         type:String
     }],

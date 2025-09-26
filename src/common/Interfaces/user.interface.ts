@@ -12,8 +12,13 @@ getuser(req:Request,res:Response,next:NextFunction):Response,
 refreshToken(req:Request,res:Response,next:NextFunction):Promise<Response>,
 forgetPassword(req:Request,res:Response,next:NextFunction):Promise<Response>,
 resetPassword(req:Request,res:Response,next:NextFunction):Promise<Response>,
-imageProfile(req:Request,res:Response,next:NextFunction):void
-coverImages(req:Request,res:Response,next:NextFunction):void
+imageProfile(req:Request,res:Response,next:NextFunction):void,
+coverImages(req:Request,res:Response,next:NextFunction):void,
+imageProfileWithPreSignedUrl(req:Request,res:Response,next:NextFunction):Promise<Response>,
+getandDownloadAttachment(req:Request,res:Response,next:NextFunction):Promise<void>,
+getandDownloadAttachmentwithPreSignedUrl(req:Request,res:Response,next:NextFunction):Promise<Response>,
+DeleteFile(req:Request,res:Response,next:NextFunction):Promise<Response>,
+DeleteFiles(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 
@@ -30,6 +35,7 @@ export interface IUser extends Document{
     isConfirmed:boolean,
     profileImage:string,
     coverImages:string[],
+    Key:string,
     role:Roles
 
 }

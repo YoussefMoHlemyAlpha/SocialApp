@@ -66,3 +66,8 @@ export class UploadFileException extends ApplicationException{
     }
 }
 
+export class preSignedurlException extends ApplicationException{
+    constructor(msg:string="Fialed to generate Url"){
+        super(msg,409)
+    }
+}
