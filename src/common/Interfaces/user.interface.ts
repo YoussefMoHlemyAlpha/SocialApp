@@ -26,6 +26,7 @@ export interface IUser extends Document{
     firstName: string;
     lastName: string;
     email: string;
+    slug:string,
     password: string;
     confirmPassword: string;
     emailOtp: OtpType;
