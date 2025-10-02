@@ -1,8 +1,9 @@
-import { model, Schema} from "mongoose"
+import { HydratedDocument, model, Schema, UpdateQuery} from "mongoose"
 import { IUser } from "../../common/Interfaces/user.interface"
 import { Roles } from "../../common/Enums/user.enum"
 import { ApplicationException } from "../../utils/Error"
 import { hashText } from "../../utils/bcrypt"
+import { emailEventEmitter } from "../../utils/emails/emailEvents"
 
 
 const userSchema=new Schema<IUser>({
@@ -58,13 +59,16 @@ const userSchema=new Schema<IUser>({
     profileImage:String,
     Key:String,
     slug:String,
+    deleteAt:Date,
     coverImages:[{
         type:String
     }],
-    isCredentialUpdated:Date
+    isCredentialUpdated:Date,
+    extra:{name:String}
 },
 {
     timestamps:true,
+    strictQuery:true,
     toJSON:{
         virtuals:true
     },
@@ -76,7 +80,7 @@ const userSchema=new Schema<IUser>({
 )
 
 
-userSchema.virtual('username').set(function(value:string){
+/*userSchema.virtual('username').set(function(value:string){
     const[firstName,lastName]=value.split(" ")|| []
     this.set({firstName,lastName,slug:value.replaceAll(/\s+/g,'-')})
 })
@@ -106,7 +110,112 @@ userSchema.pre("save", async function (next) {
 userSchema.post("save", function (doc) {
   console.log("post save hook, user created:", doc);
  
-});
+});*/
+
+/*userSchema.pre('save',async function (next) {
+    console.log({
+        PreSave:this,
+        directModifiedPaths:this.directModifiedPaths(),
+        isDirectModified:this.isDirectModified('extra.name'),
+        isSelected:this.isSelected('extra.name'),
+        isInited:this.isInit('firstName'),
+        isInitedlastName:this.isInit('lastName')
+
+    }); 
+    
+})*/
+
+/*userSchema.pre('updateOne',{document:true,query:false},async function(next){
+    console.log({this:this});
+
+})
+userSchema.pre(['findOne','find'],async function(next){
+const query=this.getQuery()
+console.log({
+    this:this,
+    query:query
+})
+if(query.paranoId===false){
+    this.setQuery({...query})
+}else{
+    this.setQuery({...query,deletedAt:{$exists:false}})
+}
+const options=this.getOptions()
+if(options.skip&&options.skip<0){
+    this.setOptions({...options,skip:0})
+}if(options.limit&&options.limit<=0){
+    this.setOptions({...options,limit:5})
+}
+
+})
+
+userSchema.pre('updateOne',async function (next) {
+    const update=this.getUpdate()as UpdateQuery<HydratedDocument<IUser>>
+    console.log({update})
+    if(update.deleteAt){
+        this.setUpdate({...update,isCredentialUpdated:new Date()})
+    }
+    if(update.password){
+        const hashedPassword=hashText(update.password as string)
+        this.setUpdate({...update,password:hashedPassword,confirmPassword:hashedPassword,isCredentialUpdated:new Date()})
+    }
+})
+
+userSchema.pre('findOneAndUpdate',async function (next) {
+    const update=this.getUpdate()as UpdateQuery<HydratedDocument<IUser>>
+    console.log({update})
+    if(update.deleteAt){
+        this.setUpdate({...update,isCredentialUpdated:new Date()})
+    }
+    if(update.password){
+        const hashedPassword=hashText(update.password as string)
+        this.setUpdate({...update,password:hashedPassword,confirmPassword:hashedPassword,isCredentialUpdated:new Date()})
+    }
+    next()
+})
+
+userSchema.pre('insertMany',async function (next,docs) {
+    console.log({
+        this:this,
+        docs:docs
+    });
+    
+})
+
+userSchema.post('insertMany',async function (docs,next) {
+    console.log({
+        this:this,
+        docs:docs
+    });
+    next()
+})*/
+
+userSchema.pre('save',async function(this : HydratedDocument<IUser>& {firstCreation:boolean,plainTextOtp?:string},next){
+this.firstCreation=this.isNew
+this.plainTextOtp= this.emailOtp?.Otp
+if(this.isModified('password')){
+    this.password=hashText(this.password)
+    this.confirmPassword=hashText(this.confirmPassword)
+}
+if(this.isModified('emailOtp.Otp')){
+    this.emailOtp={
+        Otp:hashText(this.emailOtp?.Otp ||''),
+        expireAt:this.emailOtp?.expireAt as Date
+    }
+}
+
+})
+
+
+userSchema.post('save',async function(doc,next){
+    const that=this as HydratedDocument<IUser>& {firstCreation:boolean,plainTextOtp?:string}
+    console.log({isNew:that.firstCreation,plainTextOtp:that.plainTextOtp});
+    if(that.firstCreation){
+     emailEventEmitter.emit('confirmEmail', { email:that.email, firstName:that.firstName, otp:that.plainTextOtp });
+    }
+    next();
+})
+
 
 
 

@@ -1,4 +1,5 @@
 import { Model,FilterQuery, ProjectionType, QueryOptions, CreateOptions, UpdateQuery } from "mongoose";
+import { IUser } from "../../common/Interfaces/user.interface";
 
 export class DatabaseRepository <T> {
 
@@ -25,12 +26,14 @@ async createOne({
 }: {
   data: Partial<T>;
   options?: CreateOptions;
-}): Promise<T[]> {
-  return this.model.create([data], options);
+}): Promise<T> {
+  const doc = await this.model.create(data);
+  return doc as T;
 }
 
-async updateOne({updatedData,filter}:{updatedData:UpdateQuery<T>,filter:UpdateQuery<T>}):Promise<T|null>{
+
+async updateOne({updatedData,filter}:{updatedData:UpdateQuery<IUser>,filter?:UpdateQuery<IUser>}):Promise<IUser|null>{
 return this.model.findOneAndUpdate(filter,updatedData,{new:true})
-
 }
+
 }

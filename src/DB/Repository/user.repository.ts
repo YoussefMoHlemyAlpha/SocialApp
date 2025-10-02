@@ -1,7 +1,7 @@
 import { IUser } from "../../common/Interfaces/user.interface";
 import { userModel } from "../Models/user.model";
 import { DatabaseRepository } from "./database.repository";
-import { FilterQuery, ObjectId } from "mongoose";
+import { FilterQuery, ObjectId, UpdateQuery } from "mongoose";
 
 
 export class UserRepository extends DatabaseRepository<IUser>{
@@ -17,4 +17,7 @@ async findById(id: ObjectId): Promise<IUser | null> {
   return this.findOne({ filter: { _id : id} });
 }
 
+async find({filter,options}:{filter?:FilterQuery<IUser>,options?:any}): Promise<IUser[]> {
+  return this.model.find({...filter,deleteAt:{$exists:false}},options); 
+}
 }

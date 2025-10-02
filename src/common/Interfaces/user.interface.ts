@@ -37,7 +37,11 @@ export interface IUser extends Document{
     profileImage:string,
     coverImages:string[],
     Key:string,
-    role:Roles
+    role:Roles,
+    deleteAt?:Date,
+    extra:{
+        name:string
+    }
 
 }
 
