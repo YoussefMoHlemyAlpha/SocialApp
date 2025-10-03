@@ -33,8 +33,7 @@ export class UserServices implements IUserServices{
             return res.status(400).json({msg:"Email already exists"})
         }
         const otp:string=generateOtp()
-        await this.userRepo.createOne({data:{firstName,lastName,email,password:hashText(password),confirmPassword:hashText(confirmPassword),emailOtp:{Otp:hashText(otp),expireAt:new Date(Date.now()+10*60*1000)}}});
-        emailEventEmitter.emit('confirmEmail', { email, firstName, otp });
+        await this.userRepo.createOne({data:{firstName,lastName,email,password,confirmPassword,emailOtp:{Otp:otp,expireAt:new Date(Date.now()+10*60*1000)}}});
         return res.status(201).json({msg:"User created successfully"})
     }catch(error){
 console.error(error);

@@ -220,7 +220,7 @@ userSchema.post('insertMany',async function (docs,next) {
     next()
 })*/
 
-/*userSchema.pre('save',async function(this : HydratedDocument<IUser>& {firstCreation:boolean,plainTextOtp?:string},next){
+userSchema.pre('save',async function(this : HydratedDocument<IUser>& {firstCreation:boolean,plainTextOtp?:string},next){
 this.firstCreation=this.isNew
 this.plainTextOtp= this.emailOtp?.Otp
 if(this.isModified('password')){
@@ -246,7 +246,7 @@ userSchema.post('save',async function(doc,next){
     next();
 })
 
-*/
+
 
 
 export const userModel=model<IUser>('user',userSchema)
