@@ -71,3 +71,15 @@ export class preSignedurlException extends ApplicationException{
         super(msg,409)
     }
 }
+
+export class unusedEmail extends ApplicationException{
+    constructor(msg:string="please use unused Email"){
+        super(msg,409)
+    }
+}
+
+export class unusedPassword extends ApplicationException{
+    constructor(msg:string="please use unused Password"){
+        super(msg,409)
+    }
+}

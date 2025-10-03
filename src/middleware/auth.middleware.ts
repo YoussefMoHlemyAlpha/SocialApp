@@ -24,6 +24,7 @@ if(!token){
 }
 const payload=verifyToken({token,signature:tokenType===TokenTypes.access?`${process.env.user_access_signature as string}`:`${process.env.user_refresh_signature as string}`}) as Ipayload
 const user = await userModel.findById(payload.id) as HydratedDocument<IUser>;
+console.log({user});
 
 if(!user){
     throw new NotFoundError('User not found')
@@ -33,7 +34,7 @@ if(!user.isConfirmed){
     throw new NotConfirmed('Please confirm your email')
 }
 
-if(user.isCredentialUpdated.getTime()>=payload.iat*1000){
+if(user?.isCredentialUpdated?.getTime()>=payload.iat*1000){
     throw new validationError('please log-in again')
 }
 return {user, payload}

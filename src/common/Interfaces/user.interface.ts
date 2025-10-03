@@ -19,6 +19,13 @@ getandDownloadAttachment(req:Request,res:Response,next:NextFunction):Promise<voi
 getandDownloadAttachmentwithPreSignedUrl(req:Request,res:Response,next:NextFunction):Promise<Response>,
 DeleteFile(req:Request,res:Response,next:NextFunction):Promise<Response>,
 DeleteFiles(req:Request,res:Response,next:NextFunction):Promise<Response>,
+updateEmail(req:Request,res:Response,next:NextFunction):Promise<Response>,
+updateEmailConfirm(req:Request,res:Response,next:NextFunction):Promise<Response>,
+updatePassword(req:Request,res:Response,next:NextFunction):Promise<Response>,
+updatebasicInfo(req:Request,res:Response,next:NextFunction):Promise<Response>,
+enbaleTwoStepsVerification(req:Request,res:Response,next:NextFunction):Promise<Response>,
+verifyTwostepsOTP(req:Request,res:Response,next:NextFunction):Promise<Response>,
+confirmLogin(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 
@@ -30,12 +37,18 @@ export interface IUser extends Document{
     password: string;
     confirmPassword: string;
     emailOtp: OtpType;
-    passwordOtp:OtpType;
+    newEmail:string,
+    newEmailOtp:OtpType ,
+    passwordOtp:OtpType,
+    twoStepVerification:OtpType,
     isCredentialUpdated:Date,
+    twoStepVerficationState:boolean,
     phone:string,
+    enTSV:boolean,
     isConfirmed:boolean,
     profileImage:string,
     coverImages:string[],
+    oldpasswords:string[],
     Key:string,
     role:Roles,
     deleteAt?:Date,

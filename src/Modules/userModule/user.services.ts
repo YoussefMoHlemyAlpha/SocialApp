@@ -6,8 +6,8 @@ import { emailEventEmitter } from "../../utils/emails/emailEvents";
 import { compareText, hashText } from "../../utils/bcrypt";
 import jwt from 'jsonwebtoken'
 import { nanoid } from "nanoid";
-import { confirmEmailDTO, forgetPasswordDTO, LoginDTO, resendEmailOtpDTO, resetPasswordDTO, signUpDTO } from "./user.DTO";
-import { ApplicationException, InvalidCredentials, InvalidOtp, NotConfirmed, NotFoundError, OTPExpired, preSignedurlException, validationError } from "../../utils/Error";
+import { confirmEmailDTO, confirmLoginDTO, ConfirmupdateEmailDTO, forgetPasswordDTO, LoginDTO, resendEmailOtpDTO, resetPasswordDTO, signUpDTO, twoStepVerificationDTO, updateBasicInfoDTO, updateEmailDTO, updatePasswordDTO } from "./user.DTO";
+import { ApplicationException, InvalidCredentials, InvalidOtp, NotConfirmed, NotFoundError, OTPExpired, preSignedurlException, unusedEmail, unusedPassword, validationError } from "../../utils/Error";
 import { sucessHandler } from "../../utils/sucessHandler";
 import { decodeToken } from "../../middleware/auth.middleware";
 import { TokenTypes } from "../../common/Enums/user.enum";
@@ -33,8 +33,8 @@ export class UserServices implements IUserServices{
             return res.status(400).json({msg:"Email already exists"})
         }
         const otp:string=generateOtp()
-        await this.userRepo.createOne({data:{firstName,lastName,email,password,confirmPassword,emailOtp:{Otp:otp,expireAt:new Date(Date.now()+10*60*1000)}}});
-
+        await this.userRepo.createOne({data:{firstName,lastName,email,password:hashText(password),confirmPassword:hashText(confirmPassword),emailOtp:{Otp:hashText(otp),expireAt:new Date(Date.now()+10*60*1000)}}});
+        emailEventEmitter.emit('confirmEmail', { email, firstName, otp });
         return res.status(201).json({msg:"User created successfully"})
     }catch(error){
 console.error(error);
@@ -100,10 +100,15 @@ const payload={
 }
 const accessToken:string=jwt.sign(payload,accessSignature,{expiresIn:'15m',jwtid})
 const refreshToken:string=jwt.sign(payload,refreshSignature,{expiresIn:'7d',jwtid})
-
+if(!user.enTSV){
     return sucessHandler({res,msg:"Login successful",status:200,data:{accessToken,refreshToken}})
 }
-
+const otp:string=generateOtp()
+emailEventEmitter.emit('resendEmailOtp', { email, firstName:user.firstName, otp });
+user.twoStepVerification={Otp:hashText(otp),expireAt:new Date(Date.now()+10*60*1000)}
+await user.save()
+return sucessHandler({res,msg:"OTP sent to your email",status:200})
+}
 
 // resend Emaitl Otp service
 resendEmailOtp=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
@@ -255,6 +260,162 @@ return res.status(400).json({
 }
 const results=await  deleteFiles({urls})
 return sucessHandler({res,data:results,status:200,msg:"Done"})  
+}
+
+updateEmail=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const {newEmail}:updateEmailDTO =req.body
+    const user=res.locals.user as HydratedDocument<IUser>
+    console.log({user})
+    if(newEmail==user.email){
+        throw new unusedEmail()
+    }
+    const ExistUser=await this.userRepo.findByEmail(newEmail)
+    if(ExistUser){
+        throw new ApplicationException('please use another Email',409)
+    }
+    if(!user.isConfirmed){
+        throw new NotConfirmed()
+    }
+    const oldEmailOtp:string=generateOtp()
+    user.emailOtp={Otp:hashText(oldEmailOtp),expireAt:new Date(Date.now()+60*1000)}
+    emailEventEmitter.emit('confirmEmail', { email:user.email, firstName:user.firstName, otp:oldEmailOtp });
+
+    const newEmailOtp:string=generateOtp()
+    user.newEmailOtp={Otp:hashText(newEmailOtp),expireAt:new Date(Date.now()+60*1000)}
+
+    user.newEmail=newEmail
+    user.isConfirmed=false
+
+    emailEventEmitter.emit('confirmEmail', { email:user.newEmail, firstName:user.firstName, otp:newEmailOtp });
+    await user.save()
+   return sucessHandler({res,status:200,msg:"Done"})  
+    
+}
+updateEmailConfirm=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const {email,emailOtp,newEmailOtp}:ConfirmupdateEmailDTO=req.body
+    const user=await this.userRepo.findByEmail(email)
+    if(!user){
+        throw new NotFoundError()
+    }
+    if(user.emailOtp?.expireAt.getTime()<=Date.now()||user.newEmailOtp?.expireAt.getTime()<=Date.now()){
+     throw new OTPExpired()
+    }
+    if(!compareText(emailOtp,user.emailOtp.Otp)||!compareText(newEmailOtp,user.newEmailOtp.Otp)){
+     throw new validationError('in-valid OTP')
+    }
+    user.email=user.newEmail
+    user.isConfirmed=true
+    user.emailOtp={ Otp: "", expireAt: new Date() }
+    user.newEmail=""
+    user.newEmailOtp={ Otp: "", expireAt: new Date() }
+    await user.save()
+
+    return sucessHandler({res,data:{user},status:200,msg:"Email Updated Successfully"})
+}
+
+updatePassword=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
+   const {email,oldPassword,newPassword}:updatePasswordDTO=req.body
+   const user=await this.userRepo.findByEmail(email)
+   if(!user){
+    throw new NotFoundError()
+   }
+   if(!compareText(oldPassword,user.password)){
+    throw new validationError('incorrect Password')
+   }
+   if(compareText(newPassword,user.password)){
+    throw new unusedPassword()
+   }
+   for (const old of user.oldpasswords || []) {
+    if(compareText(newPassword,old)){
+        throw new unusedPassword()
+    }
+   }
+   user.oldpasswords.push(user.password)
+   user.password=hashText(newPassword)
+   user.isCredentialUpdated=new Date(Date.now())
+    await user.save()
+    return sucessHandler({res,data:{user},status:200,msg:"Password Updated Successfully"})
+}
+updatebasicInfo=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
+    const {firstName,lastName,phone}:updateBasicInfoDTO=req.body
+    const user=res.locals.user as HydratedDocument<IUser>
+    const isExist = await this.userRepo.findByEmail(user.email);
+    if(!isExist){
+        throw new NotFoundError()
+    }
+    if(!user.isConfirmed){
+        throw new NotConfirmed()
+    }
+if(firstName!==undefined) user.firstName=firstName
+if(lastName!==undefined) user.lastName=lastName
+if(phone!==undefined) user.phone=phone
+
+await user.save()
+return sucessHandler({res,data:{user},status:200,msg:"Basic Info Updated Successfully"})
+
+}
+
+enbaleTwoStepsVerification=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const user=res.locals.user as HydratedDocument<IUser>
+    const isExist=await this.userRepo.findByEmail(user.email)
+    if(!isExist){
+        throw new NotFoundError()
+    }
+    if(!user.isConfirmed){
+        throw new NotFoundError()
+    }
+    if(user.twoStepVerification?.expireAt?.getTime()>=Date.now()){
+     throw new ApplicationException('otp is not expired',409)
+    }
+const otp:string=generateOtp()
+emailEventEmitter.emit('resendEmailOtp', { email:user.email, firstName:user.firstName, otp });
+user.twoStepVerification={Otp:hashText(otp),expireAt:new Date(Date.now()+10*60*1000)}
+await user.save()
+return sucessHandler({res,status:200,msg:'OTP sent to your email'})
+}
+verifyTwostepsOTP=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const{otp}:twoStepVerificationDTO=req.body
+    const user=res.locals.user as HydratedDocument<IUser>
+    const isExist=await this.userRepo.findByEmail(user.email)
+    if(!isExist){
+        throw new NotFoundError()
+    }
+    if(!user.isConfirmed){
+        throw new NotFoundError()
+    }
+    if(user.twoStepVerification?.expireAt?.getTime()<=Date.now()){
+        throw new OTPExpired()
+    }
+    if(!compareText(otp,user.twoStepVerification?.Otp)){
+        throw new ApplicationException('Wrong OTP',409)
+    }
+    user.enTSV=true
+    await user.save()
+    return sucessHandler({res,status:200,msg:"2FA enabled successfully"})
+}
+
+confirmLogin=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
+    const{otp,email}:confirmLoginDTO=req.body
+    const user=await this.userRepo.findByEmail(email)
+    console.log({user})
+    if(!user){
+        throw new NotFoundError()
+    }
+    if(!user.isConfirmed){
+        throw new NotFoundError()
+    }
+    if(!user.enTSV){
+        throw new ApplicationException('TWO Steps Verification disabled',409)
+    }
+    if(user.twoStepVerification?.expireAt?.getTime()<=Date.now()){
+        throw new validationError("Otp expired")
+    }
+    if(!compareText(otp,user.twoStepVerification?.Otp)){
+        throw new ApplicationException('Wrong OTP',409)
+    }
+    user.twoStepVerficationState=true
+    await user.save()
+    return sucessHandler({res,status:200,msg:"TWO Steps Verification is DONE"})
 }
 }
 

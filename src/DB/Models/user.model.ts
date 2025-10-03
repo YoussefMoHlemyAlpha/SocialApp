@@ -39,6 +39,23 @@ const userSchema=new Schema<IUser>({
         type:Date 
         }
     },
+    newEmailOtp:{
+        Otp:{
+            type:String
+        },
+        expireAt:{
+        type:Date 
+        }
+    },
+    twoStepVerification:{
+        Otp:{
+            type:String
+        },
+        expireAt:{
+        type:Date 
+        }
+    },
+    newEmail:String,
     passwordOtp:{
         Otp:{
             type:String
@@ -57,13 +74,26 @@ const userSchema=new Schema<IUser>({
         default:Roles.user
     },
     profileImage:String,
+    enTSV:{
+        type:Boolean,
+        default:false
+    },
+    twoStepVerficationState:{
+        type:Boolean,
+        default:false 
+    },
     Key:String,
     slug:String,
     deleteAt:Date,
+    oldpasswords:[{
+        type:String
+    }],
     coverImages:[{
         type:String
     }],
     isCredentialUpdated:Date,
+      
+
     extra:{name:String}
 },
 {
@@ -190,7 +220,7 @@ userSchema.post('insertMany',async function (docs,next) {
     next()
 })*/
 
-userSchema.pre('save',async function(this : HydratedDocument<IUser>& {firstCreation:boolean,plainTextOtp?:string},next){
+/*userSchema.pre('save',async function(this : HydratedDocument<IUser>& {firstCreation:boolean,plainTextOtp?:string},next){
 this.firstCreation=this.isNew
 this.plainTextOtp= this.emailOtp?.Otp
 if(this.isModified('password')){
@@ -216,7 +246,7 @@ userSchema.post('save',async function(doc,next){
     next();
 })
 
-
+*/
 
 
 export const userModel=model<IUser>('user',userSchema)

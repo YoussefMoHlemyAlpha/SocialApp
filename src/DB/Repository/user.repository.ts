@@ -20,4 +20,8 @@ async findById(id: ObjectId): Promise<IUser | null> {
 async find({filter,options}:{filter?:FilterQuery<IUser>,options?:any}): Promise<IUser[]> {
   return this.model.find({...filter,deleteAt:{$exists:false}},options); 
 }
+
+async findByOTP(otp: string): Promise<IUser | null> {
+  return this.findOne({ filter: { twoStepVerification: { Otp: otp } } });
+}
 }

@@ -1,3 +1,4 @@
+import { isOptionalChain } from 'typescript'
 import z from 'zod'
 
 export const signUpSchema=z.object({
@@ -44,3 +45,46 @@ export const ConfirmEmailSchema=z.object({
     email:z.email(),
     otp:z.string()
 })
+
+export const updateEmailSchema=z.object({
+    newEmail:z.email(),
+})
+
+export const ConfirmupdateEmailSchema=z.object({
+    email:z.email(),
+    emailOtp:z.string(),
+    newEmailOtp:z.string()
+})
+
+
+export const updatePasswordSchema=z.object({
+    email:z.email(),
+    oldPassword:z.string(),
+    newPassword:z.string()
+})
+
+export const updateBasicInfoSchema=z.object({
+    
+
+firstName:z.string().optional(),    
+lastName:z.string().optional(),
+phone:z.string().optional()
+
+})
+
+
+export const verifyTwostepsSechema=z.object({
+    
+otp:z.string()
+
+
+})
+
+
+export const confirmLoginSchema=z.object({
+    
+otp:z.string(),
+email:z.email()
+
+})
+
