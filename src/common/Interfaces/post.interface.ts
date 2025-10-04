@@ -1,5 +1,13 @@
 import { Document, Schema } from "mongoose";
 import { allowComments,availability } from "../Enums/post.enum";
+import { Request, Response, NextFunction } from "express";
+
+export interface IPostServices{
+createPost(req:Request,res:Response,next:NextFunction):Promise<Response>,
+
+}
+
+
 
 export interface IPost extends Document{
     content?:string,

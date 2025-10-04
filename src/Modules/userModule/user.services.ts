@@ -16,7 +16,6 @@ import { HydratedDocument } from "mongoose";
 import { promisify } from "util";
 import { pipeline } from "stream";
 
-
 const createS3WriteStreamPipe=promisify(pipeline)
 
 export class UserServices implements IUserServices{

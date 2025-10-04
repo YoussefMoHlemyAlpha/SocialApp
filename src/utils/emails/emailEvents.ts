@@ -51,3 +51,15 @@ emailEventEmitter.on('resendPasswordOtp',async({email,firstName,otp})=>{
   console.log("email sent");
 })
 
+emailEventEmitter.on('NotifyTaggedUsers',async({email,firstName,otp})=>{
+    console.log("Email sending...........")
+  const subject='Notify Tagged Users'
+  const html=Template(otp,firstName,email)
+  await sendEmail({
+    to:email,
+    html,
+    subject
+  })
+  console.log("email sent");
+})
+
