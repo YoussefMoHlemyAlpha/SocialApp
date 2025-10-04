@@ -30,8 +30,10 @@ src/
   common/
     Enums/
       user.enum.ts
+      post.enum.ts
     Interfaces/
       user.interface.ts
+      post.interface.ts
     Types/
       user.type.ts
   config/
@@ -40,8 +42,10 @@ src/
     DBConnection.ts
     Models/
       user.model.ts
+      post.model.ts
     Repository/
       database.repository.ts
+      post.repository.ts
       user.repository.ts
   middleware/
     validation.middleware.ts
@@ -50,10 +54,12 @@ src/
     postModule/
       post.controller.ts
       post.services.ts
+      post.DTO.ts
       post.validation.ts
     userModule/
       user.controller.ts
       user.services.ts
+      user.DTO.ts
       user.validation.ts
   utils/
     Emails/
