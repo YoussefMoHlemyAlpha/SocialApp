@@ -13,7 +13,7 @@ export const postSchema = new Schema<IPost>({
         type:String
     }],
     assetFolderId:{
-        type:String
+        type:String 
     },
     createdBy:{
         type:Types.ObjectId,
