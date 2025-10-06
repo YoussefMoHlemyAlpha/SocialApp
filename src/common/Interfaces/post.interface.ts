@@ -23,6 +23,7 @@ export interface IPost extends Document{
     restoredAt?:Date,
     restoredBy?:Schema.Types.ObjectId,
     createdAt?:Date,
-    updatedAt?:Date
+    updatedAt?:Date,
+    isDeleted?:boolean
 
 }

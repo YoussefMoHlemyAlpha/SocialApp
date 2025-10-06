@@ -10,48 +10,68 @@ import { uploadFile } from '../../utils/multer/multer'
 export const userRouter=Router()
 const userservice=new UserServices()
 
+const userRoutes={
+    signUp:'/sign-up',
+    confirmEmail:'/confirm-email',
+    login:'/login',
+    resendOtp:'/resend-otp',
+    refreshToken:'/refresh-token',
+    forgetPassword:'/forget-password',
+    resetPassword:'/reset-password',
+    getuser:'/get-user',
+    profileImage:'/profile-image',
+    coverImages:'/cover-images',
+    imageProfileWithPreSignedUrl:'/profile-image-presign',
+    getandDownloadAttachment:'/getordownloadfile',
+    getandDownloadAttachmentwithPreSignedUrl:'/getordownloadfileWithpresign',
+    deleteFile:'/delete-file',
+    updateEmail:'/update-email',
+    confirmUpdateEmail:'/confirm-update-email',
+    updatePassword:'/update-password',
+    updateInfo:'/update-info',
+    en2fv:'/en-2fv',
+    verifyOtp:'/verify-otp',
+    confirmLogin:'/confirm-login'
+}
 
+userRouter.post(userRoutes.signUp,validation(signUpSchema),userservice.SignUp)
 
-userRouter.post('/sign-up',validation(signUpSchema),userservice.SignUp)
+userRouter.post(userRoutes.confirmEmail,validation(ConfirmEmailSchema),userservice.ConfirmEmail)
 
-userRouter.post('/confirm-email',validation(ConfirmEmailSchema),userservice.ConfirmEmail)
+userRouter.post(userRoutes.login,validation(LoginSchema),userservice.Login)
 
-userRouter.post('/login',validation(LoginSchema),userservice.Login)
+userRouter.post(userRoutes.resendOtp,validation(resendOtpSchema),userservice.resendEmailOtp)
 
-userRouter.post('/resend-otp',validation(resendOtpSchema),userservice.resendEmailOtp)
+userRouter.post(userRoutes.refreshToken,userservice.refreshToken)
 
-userRouter.post('/refresh-token',userservice.refreshToken)
+userRouter.post(userRoutes.forgetPassword,validation(forgetPasswordSchema),userservice.forgetPassword)
 
-userRouter.post('/forget-password',validation(forgetPasswordSchema),userservice.forgetPassword)
+userRouter.post(userRoutes.resetPassword,validation(resetPasswordSchema),userservice.resetPassword)
 
-userRouter.post('/reset-password',validation(resetPasswordSchema),userservice.resetPassword)
+userRouter.get(userRoutes.getuser,auth(),userservice.getuser)
 
-userRouter.get('/get-user',auth(),userservice.getuser)
+userRouter.patch(userRoutes.profileImage,auth(),uploadFile({}).single('image'),userservice.imageProfile)
 
-userRouter.patch('/profile-image',auth(),uploadFile({}).single('image'),userservice.imageProfile)
+userRouter.patch(userRoutes.coverImages,auth(),uploadFile({}).array('images',5),userservice.coverImages)
 
-userRouter.patch('/cover-images',auth(),uploadFile({}).array('images',5),userservice.coverImages)
+userRouter.patch(userRoutes.imageProfileWithPreSignedUrl,auth(),userservice.imageProfileWithPreSignedUrl)
 
-userRouter.patch('/profile-image',auth(),userservice.imageProfileWithPreSignedUrl)
+userRouter.get(userRoutes.getandDownloadAttachment,userservice.getandDownloadAttachment)
 
-userRouter.get('/upload/*path',userservice.getandDownloadAttachment)
+userRouter.get(userRoutes.getandDownloadAttachmentwithPreSignedUrl,userservice.getandDownloadAttachmentwithPreSignedUrl)
 
-userRouter.get('/getordownloadfile',userservice.getandDownloadAttachment)
+userRouter.delete(userRoutes.deleteFile,userservice.DeleteFile)
 
-userRouter.get('/getordownloadfileWithpresign',userservice.getandDownloadAttachmentwithPreSignedUrl)
+userRouter.patch(userRoutes.updateEmail,auth(),validation(updateEmailSchema),userservice.updateEmail)
 
-userRouter.delete('/delete-file',userservice.DeleteFile)
+userRouter.patch(userRoutes.confirmUpdateEmail,validation(ConfirmupdateEmailSchema),userservice.updateEmailConfirm)
 
-userRouter.patch('/update-email',auth(),validation(updateEmailSchema),userservice.updateEmail)
+userRouter.patch(userRoutes.updatePassword,validation(updatePasswordSchema),userservice.updatePassword)
 
-userRouter.patch('/confirm-update-email',validation(ConfirmupdateEmailSchema),userservice.updateEmailConfirm)
+userRouter.patch(userRoutes.updateInfo,auth(),validation(updateBasicInfoSchema),userservice.updatebasicInfo)
 
-userRouter.patch('/update-password',validation(updatePasswordSchema),userservice.updatePassword)
+userRouter.post(userRoutes.en2fv,auth(),userservice.enbaleTwoStepsVerification)
 
-userRouter.patch('/update-info',auth(),validation(updateBasicInfoSchema),userservice.updatebasicInfo)
+userRouter.post(userRoutes.verifyOtp,auth(),validation(verifyTwostepsSechema),userservice.verifyTwostepsOTP)
 
-userRouter.post('/en-2fv',auth(),userservice.enbaleTwoStepsVerification)
-
-userRouter.post('/verify-otp',auth(),validation(verifyTwostepsSechema),userservice.verifyTwostepsOTP)
-
-userRouter.post('/confirm-login',validation(confirmLoginSchema),userservice.confirmLogin)
+userRouter.post(userRoutes.confirmLogin,validation(confirmLoginSchema),userservice.confirmLogin)

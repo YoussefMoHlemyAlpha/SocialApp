@@ -6,8 +6,6 @@ import { allowComments, availability } from "../../common/Enums/post.enum";
 export const postSchema = new Schema<IPost>({
     content:{
         type:String,
-        maxlength:5000,
-        required: function(){return this.attachments?.length===0}
     },
     attachments:[{
         type:String
@@ -55,6 +53,10 @@ export const postSchema = new Schema<IPost>({
         type:Types.ObjectId,
         ref:"User",
 
+    },
+    isDeleted:{
+        type:Boolean,
+        default:false
     }
 },{
     timestamps:true,

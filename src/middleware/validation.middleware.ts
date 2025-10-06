@@ -8,7 +8,9 @@ return(req:Request,res:Response,next:NextFunction)=>{
     const data={
         ...req.body,
         ...req.params,
-        ...req.query
+        ...req.query,
+        files:req.files,
+        ...req.file
     }
     const result=Schema.safeParse(data)
     

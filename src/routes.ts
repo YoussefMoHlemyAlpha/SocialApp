@@ -1,6 +1,6 @@
 import {Router} from "express"
-import { userRouter } from "./Modules/userModule/user.controller"
-import { postRouter } from "./Modules/postModule/post.controller"
+import { userRouter } from "./Modules/userModule"
+import { postRouter } from "./Modules/postModule"
 
 export const baseRouter=Router()
 
