@@ -1,5 +1,4 @@
-import z from 'zod';
-import { allowComments, availability } from '../../common/Enums/post.enum';
+import z, { object } from 'zod';
 import { generalValidation } from '../../utils/generalValidation';
 
 export const createPostSchema = z.object({
@@ -19,4 +18,9 @@ export const createPostSchema = z.object({
   }
 });
 
+
+export const LikeandUnlikeSchema=z.object({
+postId:z.string(),
+likeType:z.string()
+})
 

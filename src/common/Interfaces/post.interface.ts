@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 
 export interface IPostServices{
 createPost(req:Request,res:Response,next:NextFunction):Promise<Response>,
-
+LikeandUnlikePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 

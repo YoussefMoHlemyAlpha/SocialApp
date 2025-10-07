@@ -1,7 +1,6 @@
 import { HydratedDocument, model, Schema, UpdateQuery} from "mongoose"
 import { IUser } from "../../common/Interfaces/user.interface"
 import { Roles } from "../../common/Enums/user.enum"
-import { ApplicationException } from "../../utils/Error"
 import { hashText } from "../../utils/bcrypt"
 import { emailEventEmitter } from "../../utils/emails/emailEvents"
 
@@ -90,6 +89,10 @@ const userSchema=new Schema<IUser>({
     }],
     coverImages:[{
         type:String
+    }],
+    friends:[{
+        type:Schema.Types.ObjectId,
+        ref:'user'
     }],
     isCredentialUpdated:Date,
       

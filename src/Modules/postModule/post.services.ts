@@ -2,16 +2,93 @@ import { Request, Response, NextFunction } from "express";
 import { IPostServices } from "../../common/Interfaces/post.interface";
 import { PostRepository } from "../../DB/Repository/post.repository";
 import { UserRepository } from "../../DB/Repository/user.repository";
+import { sucessHandler } from "../../utils/sucessHandler";
+import { nanoid } from "nanoid";
+import { ApplicationException, NotFoundError } from "../../utils/Error";
+import { uploadMultipleFiles } from "../../utils/multer/s3.services";
+import { LikeandUnlikeDTO } from "./post.DTO";
+import { availabilityConditions } from "../../DB/Models/post.model";
+import { HydratedDocument } from "mongoose";
+import { IUser } from "../../common/Interfaces/user.interface";
+import { NotFound } from "@aws-sdk/client-s3";
+export class PostServices implements IPostServices {
+    private postRepo = new PostRepository()
+    private userRepo = new UserRepository()
 
-export class PostServices implements IPostServices{
-private postRepo=new PostRepository()
-private userRepo=new UserRepository()
+    constructor() { }
 
-constructor(){}
+    createPost = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        const files: Express.Multer.File[] = req.files as Express.Multer.File[]
+        const assetFolderId = nanoid(15)
+        const path = `/users/${res.locals.user}/posts/${assetFolderId}`
+        let attachments: string[] = [];
+        if (req.body.tags?.length) {
+            const users = await this.userRepo.find({
+                filter: {
+                    _id: {
+                        $in: req.body.tags
+                    }
+                }
+            })
+            if (req.body.tags.length != users.length) {
+                throw new ApplicationException('There are some users not exist', 404)
+            }
 
-createPost=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
-    return res.status(201).json({message:"Post Created"})
+            if (files?.length) {
+                attachments = await uploadMultipleFiles({
+                    files,
+                    path
+                })
+            }
+        }
+        const post = await this.postRepo.createOne({
+            data: {
+                ...req.body,
+                attachments,
+                createdBy: res.locals.user._id,
+                assetFolderId
+
+            }
+        })
+        return sucessHandler({ res, status: 201, msg: "Post created sucessfully", data: post })
+    }
+
+LikeandUnlikePost=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+const {postId,likeType}:LikeandUnlikeDTO=req.body
+const user:HydratedDocument<IUser>=res.locals.user
+const post=await this.postRepo.findOne({
+    filter:{
+        _id:postId,
+        $or:availabilityConditions(user)
+    }
+})
+
+if(!post){
+    throw new NotFoundError('Post not Found')
 }
 
+if(likeType=='like'){
+    await this.postRepo.updateOne({
+        filter: { _id: postId },
+        updatedData: {
+            $addToSet: {
+                likes: user._id
+            }
+        }
+    })
+}else{
+    await this.postRepo.updateOne({
+        filter: { _id: postId },
+        updatedData: {
+            $pull: {
+                likes: user._id
+            }
+        }
+    })
+}
+await post.save()
+return sucessHandler({res,status:200,msg:"Done",data:post})
+
+}
 
 }

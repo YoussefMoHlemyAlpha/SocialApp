@@ -1,8 +1,29 @@
-import { Schema,model,Types } from "mongoose";
+import { Schema,model,Types, HydratedDocument } from "mongoose";
 import { IPost } from "../../common/Interfaces/post.interface";
 import { allowComments, availability } from "../../common/Enums/post.enum";
+import { IUser } from "../../common/Interfaces/user.interface";
+export const availabilityConditions=(user:HydratedDocument<IUser>)=>{
+    return[
+        {
+            availability:availability.public
 
-
+        },
+        {
+            availability:availability.private,
+            createdBy:user._id
+        },
+        {
+            availability:availability.friends,
+            createdBy:{
+                $in:[...user.friends,user._id]
+            }
+        },
+        {
+            availability:availability.private,
+            tags:{$in:user._id}
+        }
+    ]
+}
 export const postSchema = new Schema<IPost>({
     content:{
         type:String,

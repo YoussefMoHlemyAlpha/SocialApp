@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Document, ObjectId } from "mongoose";
+import { Document, ObjectId ,Types} from "mongoose";
 import { Roles } from "../Enums/user.enum";
 import { OtpType } from "../Types/user.type";
 
@@ -55,6 +55,7 @@ export interface IUser extends Document{
     extra:{
         name:string
     }
+    friends:Types.ObjectId[]
 
 }
 
