@@ -56,11 +56,13 @@ src/
       post.services.ts
       post.DTO.ts
       post.validation.ts
+      index.ts
     userModule/
       user.controller.ts
       user.services.ts
       user.DTO.ts
       user.validation.ts
+      index.ts
   utils/
     Emails/
       emailEvents.ts
