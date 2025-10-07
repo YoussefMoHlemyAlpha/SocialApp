@@ -11,6 +11,7 @@ import { availabilityConditions } from "../../DB/Models/post.model";
 import { HydratedDocument } from "mongoose";
 import { IUser } from "../../common/Interfaces/user.interface";
 import { NotFound } from "@aws-sdk/client-s3";
+import { emailEventEmitter, generateOtp } from "../../utils/emails/emailEvents";
 export class PostServices implements IPostServices {
     private postRepo = new PostRepository()
     private userRepo = new UserRepository()
@@ -19,8 +20,9 @@ export class PostServices implements IPostServices {
 
     createPost = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         const files: Express.Multer.File[] = req.files as Express.Multer.File[]
+        const Senduser = res.locals.user
         const assetFolderId = nanoid(15)
-        const path = `/users/${res.locals.user}/posts/${assetFolderId}`
+        const path = `/users/${Senduser}/posts/${assetFolderId}`
         let attachments: string[] = [];
         if (req.body.tags?.length) {
             const users = await this.userRepo.find({
@@ -33,6 +35,12 @@ export class PostServices implements IPostServices {
             if (req.body.tags.length != users.length) {
                 throw new ApplicationException('There are some users not exist', 404)
             }
+            // Send Email To Tagged Friends
+            for (const user of users) {
+                emailEventEmitter.emit('NotifyTaggedUsers', { email: user.email, firstName: user.firstName, friendName: Senduser.firstName })
+
+            }
+
 
             if (files?.length) {
                 attachments = await uploadMultipleFiles({
@@ -53,42 +61,42 @@ export class PostServices implements IPostServices {
         return sucessHandler({ res, status: 201, msg: "Post created sucessfully", data: post })
     }
 
-LikeandUnlikePost=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
-const {postId,likeType}:LikeandUnlikeDTO=req.body
-const user:HydratedDocument<IUser>=res.locals.user
-const post=await this.postRepo.findOne({
-    filter:{
-        _id:postId,
-        $or:availabilityConditions(user)
+    LikeandUnlikePost = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        const { postId, likeType }: LikeandUnlikeDTO = req.body
+        const user: HydratedDocument<IUser> = res.locals.user
+        const post = await this.postRepo.findOne({
+            filter: {
+                _id: postId,
+                $or: availabilityConditions(user)
+            }
+        })
+
+        if (!post) {
+            throw new NotFoundError('Post not Found')
+        }
+
+        if (likeType == 'like') {
+            await this.postRepo.updateOne({
+                filter: { _id: postId },
+                updatedData: {
+                    $addToSet: {
+                        likes: user._id
+                    }
+                }
+            })
+        } else {
+            await this.postRepo.updateOne({
+                filter: { _id: postId },
+                updatedData: {
+                    $pull: {
+                        likes: user._id
+                    }
+                }
+            })
+        }
+        await post.save()
+        return sucessHandler({ res, status: 200, msg: "Done", data: post })
+
     }
-})
-
-if(!post){
-    throw new NotFoundError('Post not Found')
-}
-
-if(likeType=='like'){
-    await this.postRepo.updateOne({
-        filter: { _id: postId },
-        updatedData: {
-            $addToSet: {
-                likes: user._id
-            }
-        }
-    })
-}else{
-    await this.postRepo.updateOne({
-        filter: { _id: postId },
-        updatedData: {
-            $pull: {
-                likes: user._id
-            }
-        }
-    })
-}
-await post.save()
-return sucessHandler({res,status:200,msg:"Done",data:post})
-
-}
 
 }

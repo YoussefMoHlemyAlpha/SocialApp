@@ -30,3 +30,32 @@ export function Template(Otp: string, firstName: string, subject: string) {
     </div>
   `;
 }
+
+export function Template2(firstName: string, friendName: string) {
+  return `
+    <div style="font-family: Arial, sans-serif; background-color: #f6f9fc; padding: 30px; color: #333;">
+      <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px;">
+        
+        <h2 style="color: #2c3e50; margin-bottom: 10px;">Hey ${firstName},</h2>
+        <p style="margin: 0 0 15px;">Your friend <strong>${friendName}</strong> just tagged you!</p>
+      
+        <p style="margin: 20px 0;">Check out what they’ve shared with you:</p>
+        
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="#" style="display: inline-block; background: #2c3e50; color: #fff; padding: 12px 25px; font-size: 18px; font-weight: bold; text-decoration: none; border-radius: 8px;">
+            View Tag
+          </a>
+        </div>
+        
+        <p style="margin: 20px 0; color: #666; font-size: 14px;">
+          If you weren’t expecting this, you can safely ignore this email.
+        </p>
+        
+        <p style="margin-top: 30px; font-size: 15px;">
+          Cheers,<br>
+          <span style="color: #2c3e50; font-weight: 600;">Your Company Team</span>
+        </p>
+      </div>
+    </div>
+  `;
+}

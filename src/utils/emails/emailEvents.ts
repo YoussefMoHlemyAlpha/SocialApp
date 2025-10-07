@@ -1,7 +1,7 @@
 import { customAlphabet } from "nanoid";
 import { EventEmitter } from "events";
 import { sendEmail } from "./sendEmail";
-import { Template } from "./generatehtml";
+import { Template, Template2 } from "./generatehtml";
 
 
 export const emailEventEmitter = new EventEmitter();
@@ -51,10 +51,10 @@ emailEventEmitter.on('resendPasswordOtp',async({email,firstName,otp})=>{
   console.log("email sent");
 })
 
-emailEventEmitter.on('NotifyTaggedUsers',async({email,firstName,otp})=>{
+emailEventEmitter.on('NotifyTaggedUsers',async({email,firstName,friendName})=>{
     console.log("Email sending...........")
   const subject='Notify Tagged Users'
-  const html=Template(otp,firstName,email)
+  const html=Template2(friendName,firstName)
   await sendEmail({
     to:email,
     html,
