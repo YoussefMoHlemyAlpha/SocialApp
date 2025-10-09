@@ -29,7 +29,8 @@ const userRoutes={
     updateInfo:'/update-info',
     en2fv:'/en-2fv',
     verifyOtp:'/verify-otp',
-    confirmLogin:'/confirm-login'
+    confirmLogin:'/confirm-login',
+    blockuser:'/block/:id'
 }
 
 userRouter.post(userRoutes.signUp,validation(signUpSchema),userservice.SignUp)
@@ -73,3 +74,5 @@ userRouter.post(userRoutes.en2fv,auth(),userservice.enbaleTwoStepsVerification)
 userRouter.post(userRoutes.verifyOtp,auth(),validation(verifyTwostepsSechema),userservice.verifyTwostepsOTP)
 
 userRouter.post(userRoutes.confirmLogin,validation(confirmLoginSchema),userservice.confirmLogin)
+
+userRouter.post(userRoutes.blockuser,auth(),userservice.BlockUser)

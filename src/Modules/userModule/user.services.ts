@@ -12,7 +12,7 @@ import { sucessHandler } from "../../utils/sucessHandler";
 import { decodeToken } from "../../middleware/auth.middleware";
 import { TokenTypes } from "../../common/Enums/user.enum";
 import { uploadSingleLargeFileS3 ,uploadSingleFileS3, uploadMultipleFiles, createPreSignedUrl, getFile,CreateGetPreSignedUrl, deleteFile, deleteFiles } from "../../utils/multer/s3.services";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument,Schema,Types } from "mongoose";
 import { promisify } from "util";
 import { pipeline } from "stream";
 
@@ -415,6 +415,32 @@ confirmLogin=async(req: Request, res: Response, next: NextFunction): Promise<Res
     await user.save()
     return sucessHandler({res,status:200,msg:"TWO Steps Verification is DONE"})
 }
+
+
+BlockUser=async(req: Request, res: Response, next: NextFunction): Promise<Response>=> {
+  const blockedUserId=req.params.id
+   const user=res.locals.user as HydratedDocument<IUser> 
+  console.log(user)
+  const blockedUser =await this.userRepo.findOne({filter:{_id:blockedUserId}}) 
+  if(!blockedUser){
+    throw new NotFoundError()
+  }
+await this.userRepo.updateOne({
+    filter: { _id: user._id},
+    updatedData:{
+        $addToSet:{
+            blockUsers: blockedUserId 
+        }
+    }
+}
+);
+  return sucessHandler({res,status:200,msg:"user is Blocked"})
+  // after that we will deny the blocked user to react and make commands but in like and unlike api and create comments api 
+}
+
+
+
+
 }
 
 

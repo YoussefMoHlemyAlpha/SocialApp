@@ -8,7 +8,7 @@ import { ApplicationException, NotFoundError } from "../../utils/Error";
 import { uploadMultipleFiles } from "../../utils/multer/s3.services";
 import { LikeandUnlikeDTO } from "./post.DTO";
 import { availabilityConditions } from "../../DB/Models/post.model";
-import { HydratedDocument, ObjectId,Types } from "mongoose";
+import { HydratedDocument, ObjectId, Types } from "mongoose";
 import { IUser } from "../../common/Interfaces/user.interface";
 import { NotFound } from "@aws-sdk/client-s3";
 import { emailEventEmitter, generateOtp } from "../../utils/emails/emailEvents";
@@ -75,7 +75,10 @@ export class PostServices implements IPostServices {
         if (!post) {
             throw new NotFoundError('Post not Found')
         }
-
+        const postOwner = await this.userRepo.findOne({ filter: { _id: post.createdBy } })
+        if (postOwner?.blockUsers.includes(user.id)) {
+            throw new ApplicationException('You are blocked', 409)
+        }
         if (likeType == 'like') {
             await this.postRepo.updateOne({
                 filter: { _id: postId },
@@ -99,110 +102,112 @@ export class PostServices implements IPostServices {
         return sucessHandler({ res, status: 200, msg: "Done", data: post })
 
     }
-updatePost=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
-    const postId=req.params.id
-    const userId=res.locals.user._id
-    const assetFolderId=res.locals.user.assetFolderId
-    const{
-        content,
-        availability,
-        allowComments,
-        removedTags,
-        newTags,
-        Removedattachments,
-    }:{
-        content:string,
-        availability:availability,
-        allowComments:boolean
-        removedTags:Types.ObjectId[],
-        newTags:string[],
-        Removedattachments:Array<string>,
-    }=req.body
-let attachmentsLinks :string[]=[]
+    updatePost = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        const postId = req.params.id
+        const userId = res.locals.user._id
+        const assetFolderId = res.locals.user.assetFolderId
+        const {
+            content,
+            availability,
+            allowComments,
+            removedTags,
+            newTags,
+            Removedattachments,
+        }: {
+            content: string,
+            availability: availability,
+            allowComments: boolean
+            removedTags: Types.ObjectId[],
+            newTags: string[],
+            Removedattachments: Array<string>,
+        } = req.body
+        let attachmentsLinks: string[] = []
 
-const newAttachments=(req.files as Array<Express.Multer.File>)
-const post = await this.postRepo.findOne({
-    filter:{
-        _id:postId,
-        createdBy:userId
-    }
-})
+        const newAttachments = (req.files as Array<Express.Multer.File>)
+        const post = await this.postRepo.findOne({
+            filter: {
+                _id: postId,
+                createdBy: userId
+            }
+        })
 
-if(!post){
-    throw new NotFoundError('Post Not Found')
-}
-
-
-const users=await this.userRepo.find({
-    filter:{
-        _id:{
-            $in:newTags||[]
+        if (!post) {
+            throw new NotFoundError('Post Not Found')
         }
+
+
+        const users = await this.userRepo.find({
+            filter: {
+                _id: {
+                    $in: newTags || []
+                }
+            }
+        })
+
+
+        if (users?.length != newTags?.length) {
+            throw new ApplicationException('There are some users not exist', 404)
+        }
+
+
+        if (newAttachments.length) {
+            attachmentsLinks = await uploadMultipleFiles({
+                files: newAttachments,
+                path: `/users/${userId}/posts/${assetFolderId}`
+            })
+        }
+
+
+        await this.postRepo.updateOne({
+            updatedData: {
+                $set: {
+                    content: content || post.content,
+                    availability: availability || post.availability,
+                    allowComments: allowComments || post.allowComments,
+                    attachments: {
+                        $setUnion: [
+                            {
+                                $setDifference: [
+                                    '$attachments',
+                                    Removedattachments
+                                ]
+                            },
+                            attachmentsLinks
+                        ]
+                    },
+                    tags: {
+                        $setUnion: [
+                            {
+                                $setDifference: [
+                                    '$tags',
+                                    removedTags
+                                ]
+                            },
+                            newTags.map((tag: string) => {
+                                return Types.ObjectId.createFromHexString(tag)
+                            })
+                        ]
+                    }
+                }
+            },
+        });
+
+        return sucessHandler({ res, status: 200, msg: "Post is updated" })
     }
-})
 
-
-if(users?.length != newTags?.length){
-throw new ApplicationException('There are some users not exist', 404)
-}
-
-
-if(newAttachments.length){
-    attachmentsLinks=await uploadMultipleFiles({
-        files:newAttachments,
-        path:`/users/${userId}/posts/${assetFolderId}`
-    })
-}
-
-
-await this.postRepo.updateOne({
-  updatedData: {
-    $set: {
-      content: content || post.content,
-      availability: availability || post.availability,
-      allowComments: allowComments || post.allowComments,
-      attachments: {
-        $setUnion: [
-          {
-            $setDifference: [
-              '$attachments',
-              Removedattachments
-            ]
-          },
-          attachmentsLinks
-        ]
-      },
-    tags: {
-        $setUnion: [
-          {
-            $setDifference: [
-              '$tags',
-              removedTags
-            ]
-          },
-          newTags.map((tag:string)=>{
-                 return Types.ObjectId.createFromHexString(tag)
-          })
-        ]
-      }
+    getPostById = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        const postId = req.params.id
+        if (!postId) {
+            throw new ApplicationException('please insert send post id', 409)
+        }
+        const post = await this.postRepo.findOne({
+            filter: {
+                _id: postId
+            }
+        })
+        if (!post) {
+            throw new NotFoundError('post is not Found')
+        }
+        return sucessHandler({ res, status: 200, data: post })
     }
-  },
-});
-
-  return sucessHandler({res,status:200,msg:"Post is updated"})  
-}
-
-getPostById=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
-    const postId=req.params.id
-    if(!postId){
-        throw new ApplicationException('please insert send post id',409)
-    }
-    const post=await this.postRepo.findOne({filter:{
-        _id:postId
-    }})
-    if(!post){
-        throw new NotFoundError('post is not Found')
-    }  
-    return sucessHandler({res,status:200,data:post})
-}
 }

@@ -27,6 +27,10 @@ createComment=async(req: Request, res: Response, next: NextFunction): Promise<Re
     if(!post){
         throw new NotFoundError('Not Found Error')
     }
+    const postOwner=await this.userRepo.findOne({filter:{_id:post?.createdBy}})
+    if (postOwner?.blockUsers.includes(userId)) {
+            throw new ApplicationException('You are blocked', 409)
+        }
     if(!post.allowComments){
         throw new ApplicationException('You are not allowed to comment on this post',409)
     }

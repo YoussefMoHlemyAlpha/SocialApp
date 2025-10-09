@@ -26,6 +26,7 @@ updatebasicInfo(req:Request,res:Response,next:NextFunction):Promise<Response>,
 enbaleTwoStepsVerification(req:Request,res:Response,next:NextFunction):Promise<Response>,
 verifyTwostepsOTP(req:Request,res:Response,next:NextFunction):Promise<Response>,
 confirmLogin(req:Request,res:Response,next:NextFunction):Promise<Response>,
+BlockUser(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 
@@ -46,6 +47,7 @@ export interface IUser extends Document{
     phone:string,
     enTSV:boolean,
     isConfirmed:boolean,
+    blockUsers:Types.ObjectId[],
     profileImage:string,
     coverImages:string[],
     oldpasswords:string[],

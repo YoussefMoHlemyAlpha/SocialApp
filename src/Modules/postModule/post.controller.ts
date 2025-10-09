@@ -24,3 +24,4 @@ postRouter.patch(postRoutes.updatePost,auth(),uploadFile({}).array('newattachmen
 
 postRouter.get(postRoutes.getPost,postservice.getPostById)
 
+

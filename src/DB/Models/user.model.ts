@@ -87,6 +87,10 @@ const userSchema=new Schema<IUser>({
     oldpasswords:[{
         type:String
     }],
+    blockUsers:[{
+        type:Schema.Types.ObjectId,
+        ref:'user'
+    }],
     coverImages:[{
         type:String
     }],
@@ -95,8 +99,6 @@ const userSchema=new Schema<IUser>({
         ref:'user'
     }],
     isCredentialUpdated:Date,
-      
-
     extra:{name:String}
 },
 {
