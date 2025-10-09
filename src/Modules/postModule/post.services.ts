@@ -8,10 +8,11 @@ import { ApplicationException, NotFoundError } from "../../utils/Error";
 import { uploadMultipleFiles } from "../../utils/multer/s3.services";
 import { LikeandUnlikeDTO } from "./post.DTO";
 import { availabilityConditions } from "../../DB/Models/post.model";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, ObjectId,Types } from "mongoose";
 import { IUser } from "../../common/Interfaces/user.interface";
 import { NotFound } from "@aws-sdk/client-s3";
 import { emailEventEmitter, generateOtp } from "../../utils/emails/emailEvents";
+import { allowComments, availability } from "../../common/Enums/post.enum";
 export class PostServices implements IPostServices {
     private postRepo = new PostRepository()
     private userRepo = new UserRepository()
@@ -22,7 +23,7 @@ export class PostServices implements IPostServices {
         const files: Express.Multer.File[] = req.files as Express.Multer.File[]
         const Senduser = res.locals.user
         const assetFolderId = nanoid(15)
-        const path = `/users/${Senduser}/posts/${assetFolderId}`
+        const path = `/users/${Senduser._id}/posts/${assetFolderId}`
         let attachments: string[] = [];
         if (req.body.tags?.length) {
             const users = await this.userRepo.find({
@@ -98,5 +99,113 @@ export class PostServices implements IPostServices {
         return sucessHandler({ res, status: 200, msg: "Done", data: post })
 
     }
+updatePost=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const postId=req.params.id
+    const userId=res.locals.user._id
+    const assetFolderId=res.locals.user.assetFolderId
+    const{
+        content,
+        availability,
+        allowComments,
+        removedTags,
+        newTags,
+        Removedattachments,
+    }:{
+        content:string,
+        availability:availability,
+        allowComments:boolean
+        removedTags:Types.ObjectId[],
+        newTags:string[],
+        Removedattachments:Array<string>,
+    }=req.body
+let attachmentsLinks :string[]=[]
 
+const newAttachments=(req.files as Array<Express.Multer.File>)
+const post = await this.postRepo.findOne({
+    filter:{
+        _id:postId,
+        createdBy:userId
+    }
+})
+
+if(!post){
+    throw new NotFoundError('Post Not Found')
+}
+
+
+const users=await this.userRepo.find({
+    filter:{
+        _id:{
+            $in:newTags||[]
+        }
+    }
+})
+
+
+if(users?.length != newTags?.length){
+throw new ApplicationException('There are some users not exist', 404)
+}
+
+
+if(newAttachments.length){
+    attachmentsLinks=await uploadMultipleFiles({
+        files:newAttachments,
+        path:`/users/${userId}/posts/${assetFolderId}`
+    })
+}
+
+
+await this.postRepo.updateOne({
+  updatedData: {
+    $set: {
+      content: content || post.content,
+      availability: availability || post.availability,
+      allowComments: allowComments || post.allowComments,
+      attachments: {
+        $setUnion: [
+          {
+            $setDifference: [
+              '$attachments',
+              Removedattachments
+            ]
+          },
+          attachmentsLinks
+        ]
+      },
+    tags: {
+        $setUnion: [
+          {
+            $setDifference: [
+              '$tags',
+              removedTags
+            ]
+          },
+          newTags.map((tag:string)=>{
+                 return Types.ObjectId.createFromHexString(tag)
+          })
+        ]
+      }
+    }
+  },
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  return sucessHandler({res,status:200,msg:"Post is updated"})  
+}
 }

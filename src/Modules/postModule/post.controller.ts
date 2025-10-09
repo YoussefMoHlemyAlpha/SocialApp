@@ -9,10 +9,14 @@ const postservice=new PostServices()
 
 const postRoutes={
     createPost:'/create-post',
-    likeAndUnlikePost:'/like-unlike'
+    likeAndUnlikePost:'/like-unlike',
+    updatePost:'/update-post'
 }
 
 
 
 postRouter.post(postRoutes.createPost,auth(),uploadFile({}).array('attachments', 5),validation(createPostSchema),postservice.createPost)
+
 postRouter.post(postRoutes.likeAndUnlikePost,auth(),validation(LikeandUnlikeSchema),postservice.LikeandUnlikePost)
+
+postRouter.patch(postRoutes.updatePost,auth(),uploadFile({}).array('newattachments', 5),postservice.updatePost)

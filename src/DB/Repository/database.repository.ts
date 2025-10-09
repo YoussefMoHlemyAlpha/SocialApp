@@ -32,8 +32,8 @@ async createOne({
 }
 
 
-async updateOne({updatedData,filter}:{updatedData:UpdateQuery<IUser>,filter?:UpdateQuery<IUser>}):Promise<IUser|null>{
-return this.model.findOneAndUpdate(filter,updatedData,{new:true})
+async updateOne({ updatedData, filter }: { updatedData: UpdateQuery<IUser>, filter?: UpdateQuery<IUser> }): Promise<IUser | null> {
+    return this.model.findOneAndUpdate(filter, updatedData, { new: true });
 }
 
 }
