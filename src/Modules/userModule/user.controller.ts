@@ -5,8 +5,6 @@ import { signUpSchema ,resendOtpSchema, LoginSchema, forgetPasswordSchema, reset
 import { auth } from '../../middleware/auth.middleware'
 import { uploadFile } from '../../utils/multer/multer'
 
-
-
 export const userRouter=Router()
 const userservice=new UserServices()
 

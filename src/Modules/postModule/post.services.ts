@@ -189,23 +189,20 @@ await this.postRepo.updateOne({
   },
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   return sucessHandler({res,status:200,msg:"Post is updated"})  
+}
+
+getPostById=async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
+    const postId=req.params.id
+    if(!postId){
+        throw new ApplicationException('please insert send post id',409)
+    }
+    const post=await this.postRepo.findOne({filter:{
+        _id:postId
+    }})
+    if(!post){
+        throw new NotFoundError('post is not Found')
+    }  
+    return sucessHandler({res,status:200,data:post})
 }
 }

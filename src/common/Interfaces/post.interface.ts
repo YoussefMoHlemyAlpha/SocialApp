@@ -5,7 +5,9 @@ import { Request, Response, NextFunction } from "express";
 export interface IPostServices{
 createPost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 LikeandUnlikePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
-updatePost(req:Request,res:Response,next:NextFunction):Promise<Response>
+updatePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
+getPostById(req:Request,res:Response,next:NextFunction):Promise<Response>,
+
 }
 
 

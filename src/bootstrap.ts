@@ -3,9 +3,8 @@ import dotenv from "dotenv";
 import path from "path";
 import chalk from "chalk";
 import { baseRouter } from "./routes";
-import { ApplicationException, IError, NotFoundError } from "./utils/Error";
+import { IError, NotFoundError } from "./utils/Error";
 import { connectDB } from "./DB/DBConnection";
-import { UserRepository } from "./DB/Repository/user.repository";
 import { userModel } from "./DB/Models/user.model";
 dotenv.config({
   path: path.resolve('./src/config/.env')
