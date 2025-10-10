@@ -6,7 +6,7 @@ SocialApp is a robust, scalable backend API for a modern social networking platf
 
 ---
 
-## Features
+## Basic Features
 
 - **User Registration & Authentication:** Secure sign-up and login with hashed passwords and JWT-based authentication.
 - **Modular Architecture:** Clean separation of concerns for easy feature expansion and maintenance.
@@ -17,6 +17,18 @@ SocialApp is a robust, scalable backend API for a modern social networking platf
 - **AWS S3 Integration:** Secure upload and storage of profile and cover images via Amazon S3.
 - **Email Notifications:** Utility functions for sending emails (e.g., verification, password reset).
 - **File Uploads:** Multer middleware for handling multipart/form-data and direct S3 uploads.
+
+
+## Other Features
+- **Send Friend Request** 
+- **Accept Friend request** 
+- **Delete Friend request** 
+- **Block users** 
+- **Freezing Posts** 
+- **Create users ,Posts ,Comments and replies** 
+- **Update users ,Posts ,Comments and replies** 
+- **Delete users ,Posts ,Comments and replies** 
+
 
 ---
 
@@ -34,6 +46,8 @@ src/
     Interfaces/
       user.interface.ts
       post.interface.ts
+      comment.interface.ts
+      reply.interface.ts
     Types/
       user.type.ts
   config/
@@ -43,10 +57,14 @@ src/
     Models/
       user.model.ts
       post.model.ts
+      comment.model.ts
+      reply.mode.ts
     Repository/
       database.repository.ts
       post.repository.ts
       user.repository.ts
+      comment.repository.ts
+      reply.repository.ts
   middleware/
     validation.middleware.ts
     auth.middleware.ts
@@ -63,6 +81,16 @@ src/
       user.DTO.ts
       user.validation.ts
       index.ts
+    commentModule/  
+      comment.controller.ts
+      comment.services.ts
+      comment.DTO.ts
+      comment.validation.ts
+    replyModule/
+      reply.controller.ts
+      reply.services.ts
+      reply.DTO.ts
+      reply.validation.ts
   utils/
     Emails/
       emailEvents.ts
