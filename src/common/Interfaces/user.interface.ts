@@ -27,6 +27,10 @@ enbaleTwoStepsVerification(req:Request,res:Response,next:NextFunction):Promise<R
 verifyTwostepsOTP(req:Request,res:Response,next:NextFunction):Promise<Response>,
 confirmLogin(req:Request,res:Response,next:NextFunction):Promise<Response>,
 BlockUser(req:Request,res:Response,next:NextFunction):Promise<Response>,
+sendRequest(req:Request,res:Response,next:NextFunction):Promise<Response>,
+deleteRequest(req:Request,res:Response,next:NextFunction):Promise<Response>,
+unFriend(req:Request,res:Response,next:NextFunction):Promise<Response>,
+acceptRequest(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 
@@ -57,7 +61,8 @@ export interface IUser extends Document{
     extra:{
         name:string
     }
-    friends:Types.ObjectId[]
+    friends:Types.ObjectId[],
+    friendRequests:Types.ObjectId[]
 
 }
 

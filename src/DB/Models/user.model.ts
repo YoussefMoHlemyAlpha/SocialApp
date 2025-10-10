@@ -98,6 +98,10 @@ const userSchema=new Schema<IUser>({
         type:Schema.Types.ObjectId,
         ref:'user'
     }],
+    friendRequests:[{
+        type:Schema.Types.ObjectId,
+        ref:'user'
+    }],
     isCredentialUpdated:Date,
     extra:{name:String}
 },

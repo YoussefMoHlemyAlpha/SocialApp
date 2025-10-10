@@ -30,7 +30,11 @@ const userRoutes={
     en2fv:'/en-2fv',
     verifyOtp:'/verify-otp',
     confirmLogin:'/confirm-login',
-    blockuser:'/block/:id'
+    blockuser:'/block/:id',
+    sendRequest:'/send-request/:id',
+    deleteRequest:'/delete-request/:id',
+    unfriend:"/unfriend/:id",
+    acceptRequest:'/accept-request/:id'
 }
 
 userRouter.post(userRoutes.signUp,validation(signUpSchema),userservice.SignUp)
@@ -76,3 +80,12 @@ userRouter.post(userRoutes.verifyOtp,auth(),validation(verifyTwostepsSechema),us
 userRouter.post(userRoutes.confirmLogin,validation(confirmLoginSchema),userservice.confirmLogin)
 
 userRouter.post(userRoutes.blockuser,auth(),userservice.BlockUser)
+
+userRouter.post(userRoutes.sendRequest,auth(),userservice.sendRequest)
+
+userRouter.post(userRoutes.deleteRequest,auth(),userservice.deleteRequest)
+
+userRouter.post(userRoutes.unfriend,auth(),userservice.unFriend)
+
+userRouter.post(userRoutes.acceptRequest,auth(),userservice.acceptRequest)
+
