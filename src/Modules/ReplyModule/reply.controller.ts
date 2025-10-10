@@ -10,7 +10,7 @@ export const ReplyRouter=Router()
 export const ReplyService=new ReplyServices()
 
 const ReplyRoutes={
-    createReply:'create-reply'
+    createReply:'/create-reply/:id'
 }
 
-ReplyRouter.post(ReplyRoutes.createReply,auth(),uploadFile({}).array('newAttachements',5),validation(createReplySchema),ReplyService.createReply)
+ReplyRouter.post(ReplyRoutes.createReply,auth(),uploadFile({}).array('attachments',5),validation(createReplySchema),ReplyService.createReply)

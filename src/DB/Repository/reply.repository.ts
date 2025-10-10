@@ -11,4 +11,6 @@ constructor(){
 async find({filter,options}:{filter?:FilterQuery<IReply>,options?:any}): Promise<IReply[]> {
   return this.model.find({...filter,deleteAt:{$exists:false}},options); 
 }
+
+
 }

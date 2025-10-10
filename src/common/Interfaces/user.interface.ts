@@ -31,6 +31,7 @@ sendRequest(req:Request,res:Response,next:NextFunction):Promise<Response>,
 deleteRequest(req:Request,res:Response,next:NextFunction):Promise<Response>,
 unFriend(req:Request,res:Response,next:NextFunction):Promise<Response>,
 acceptRequest(req:Request,res:Response,next:NextFunction):Promise<Response>,
+deleteUser(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 

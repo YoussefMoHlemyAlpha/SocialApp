@@ -19,7 +19,7 @@ export class ReplyServices implements IReplyServices {
  createReply=async(req: Request, res: Response, next: NextFunction): Promise<Response>=> {
     const commentId=req.params.id 
     let attachments:string[]=[]
-    const files:Express.Multer.File[]=req.files as Express.Multer.File[]
+    const files:Express.Multer.File[]=req.files as Express.Multer.File[] 
     const userId=res.locals.user._id
     const comment=await this.Commentrepo.findOne({filter:{
         _id:commentId
@@ -42,9 +42,9 @@ export class ReplyServices implements IReplyServices {
                     }
                 }
             })
-        if (req.body.tags.length != users.length) {
+ /*if (req.body.tags.length != users.length) {
                     throw new ApplicationException('There are some users not exist', 404)
-        }          
+        }  */   
         if (files?.length) {
                         attachments = await uploadMultipleFiles({
                             files,
@@ -58,6 +58,7 @@ const reply = await this.ReplyRepo.createOne({
                 createdBy:userId,
                 assetFolderId,
                 commentId:commentId,
+                postId:comment.postId
             
             }
  })

@@ -1,4 +1,4 @@
-import { Document, Schema } from "mongoose";
+import { Document, Schema ,Types} from "mongoose";
 import { allowComments,availability } from "../Enums/post.enum";
 import { Request, Response, NextFunction } from "express";
 
@@ -8,6 +8,7 @@ LikeandUnlikePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 updatePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 getPostById(req:Request,res:Response,next:NextFunction):Promise<Response>,
 freezePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
+hardDeletePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 
@@ -16,7 +17,7 @@ export interface IPost extends Document{
     content?:string,
     attachments?:string[],
     assetFolderId?:string
-    createdBy?: Schema.Types.ObjectId,
+    createdBy?: Types.ObjectId,
     tags?:Schema.Types.ObjectId[],
     likes?:Schema.Types.ObjectId[],
     allowComments?:allowComments,

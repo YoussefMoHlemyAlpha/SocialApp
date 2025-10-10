@@ -6,6 +6,7 @@ export interface ICommentServices {
     updateComment(req:Request,res:Response,next:NextFunction):Promise<Response>,
     getCommentById(req:Request,res:Response,next:NextFunction):Promise<Response>,
     getCommentWithReply(req:Request,res:Response,next:NextFunction):Promise<Response>,
+    deleteComment(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 export interface IComment extends Document{

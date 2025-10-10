@@ -15,11 +15,16 @@ import { uploadSingleLargeFileS3, uploadSingleFileS3, uploadMultipleFiles, creat
 import { HydratedDocument, Schema, Types } from "mongoose";
 import { promisify } from "util";
 import { pipeline } from "stream";
+import { PostRepository } from "../../DB/Repository/post.repository";
+import { ReplyRepository } from "../../DB/Repository/reply.repository";
 
 const createS3WriteStreamPipe = promisify(pipeline)
 
 export class UserServices implements IUserServices {
     private userRepo = new UserRepository();
+    private postRepo= new PostRepository();
+    private commentRepo=new PostRepository();
+     private replyRepo=new ReplyRepository();
     constructor() { }
 
 
@@ -570,7 +575,37 @@ export class UserServices implements IUserServices {
 
         return sucessHandler({ res, status: 200, msg: `${unfriend.firstName} is not Your friend now` })
     }
+    
 
+
+    deleteUser=async(req: Request, res: Response, next: NextFunction): Promise<Response>=> {
+        const deleteduserId=req.params.id
+        const deletedUser=await this.userRepo.findOne({filter:{_id:deleteduserId}})
+        if(!deletedUser){
+            throw new NotFoundError('user not found')
+        }
+        if(deletedUser.role=='admin'){
+            throw new ApplicationException('You can not delete admin',409)
+        }
+
+        await this.replyRepo.deleteMany({filter:{
+        createdBy:deletedUser._id
+       }})
+        await this.commentRepo.deleteMany({filter:{
+        createdBy:deletedUser._id
+       }})
+        await this.postRepo.deleteMany({filter:{
+        createdBy:deletedUser._id
+       }})
+       await this.userRepo.deleteOne({filter:{
+        _id:deletedUser._id
+       }})
+        
+     return sucessHandler({res,status:200,msg:'user deleted successfully'})
+
+    }
+
+    
 
 
 

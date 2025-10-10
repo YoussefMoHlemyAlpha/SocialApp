@@ -12,7 +12,8 @@ const postRoutes={
     likeAndUnlikePost:'/like-unlike',
     updatePost:'/update-post',
     getPost:'/get-post/:id',
-    freezePost:'/freeze-post/:id'
+    freezePost:'/freeze-post/:id',
+    deletePost:'/delete-post/:id'
 }
 
 
@@ -26,5 +27,7 @@ postRouter.patch(postRoutes.updatePost,auth(),uploadFile({}).array('newattachmen
 postRouter.get(postRoutes.getPost,postservice.getPostById)
 
 postRouter.post(postRoutes.freezePost,postservice.freezePost)
+
+postRouter.delete(postRoutes.deletePost,auth(),postservice.hardDeletePost)
 
 

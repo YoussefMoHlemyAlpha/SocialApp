@@ -7,8 +7,9 @@ import { PostRepository } from "../../DB/Repository/post.repository";
 import { nanoid } from "nanoid";
 import { ApplicationException, NotFoundError } from "../../utils/Error";
 import { uploadMultipleFiles } from "../../utils/multer/s3.services";
-import { Types } from "mongoose";
+import { Types,HydratedDocument } from "mongoose";
 import { ReplyRepository } from "../../DB/Repository/reply.repository";
+import { IUser } from "../../common/Interfaces/user.interface";
 
 export class CommentServices implements ICommentServices{
  constructor() { }
@@ -46,9 +47,10 @@ createComment=async(req: Request, res: Response, next: NextFunction): Promise<Re
                     }
                 }
             })
-    if (req.body.tags.length != users.length) {
+            
+   /* if (req.body.tags.length != users?.length) {
                 throw new ApplicationException('There are some users not exist', 404)
-    }          
+    }      */    
     if (files?.length) {
                     attachments = await uploadMultipleFiles({
                         files,
@@ -187,5 +189,29 @@ getCommentWithReply=async(req: Request, res: Response, next: NextFunction): Prom
     }})
 
     return sucessHandler({res,status:200,data:{comment:comment ,replies:replies}})
+}
+
+
+deleteComment=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const deletedCommentId=req.params.id
+    const user= res.locals.user as HydratedDocument<IUser>
+    const comment=await this.Commentrepo.findOne({filter:{_id:deletedCommentId}})
+    if(!comment){
+        throw new NotFoundError('comment not found')
+    }
+    if(user._id!=comment.createdBy){
+       throw new ApplicationException('You are not the owner of this post',409)
+    }
+    const post =await this.PostRepo.findOne({filter:{_id:comment.postId}})
+    if(post?.isfreezed){
+        throw new ApplicationException('post is freezed',409)
+    }
+    const replies=await this.replyRepo.find({filter:{commentId:comment._id}})
+
+    await this.replyRepo.deleteMany({filter:{commentId:comment._id}})
+    
+    await this.Commentrepo.deleteOne({filter:{_id:comment._id}})
+
+    return sucessHandler({res,status:200,msg:"Comment is deleted successfully"})
 }
 }

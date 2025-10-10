@@ -13,9 +13,13 @@ import { IUser } from "../../common/Interfaces/user.interface";
 import { NotFound } from "@aws-sdk/client-s3";
 import { emailEventEmitter, generateOtp } from "../../utils/emails/emailEvents";
 import { allowComments, availability } from "../../common/Enums/post.enum";
+import { CommentRepository } from "../../DB/Repository/comment.repository";
+import { ReplyRepository } from "../../DB/Repository/reply.repository";
 export class PostServices implements IPostServices {
     private postRepo = new PostRepository()
     private userRepo = new UserRepository()
+    private commentRepo = new CommentRepository()
+    private replyRepo = new ReplyRepository()
 
     constructor() { }
 
@@ -75,8 +79,8 @@ export class PostServices implements IPostServices {
         if (!post) {
             throw new NotFoundError('Post not Found')
         }
-        if(post.isfreezed){
-            throw new ApplicationException('This post is freezed',409)
+        if (post.isfreezed) {
+            throw new ApplicationException('This post is freezed', 409)
         }
         const postOwner = await this.userRepo.findOne({ filter: { _id: post.createdBy } })
         if (postOwner?.blockUsers.includes(user.id)) {
@@ -216,19 +220,47 @@ export class PostServices implements IPostServices {
 
 
 
-    freezePost=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
-        const postId=req.params.id
-        const post = await this.postRepo.findOne({filter:{_id:postId}})
-        if(!post){
+    freezePost = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        const postId = req.params.id
+        const post = await this.postRepo.findOne({ filter: { _id: postId } })
+        if (!post) {
             throw new NotFoundError("post not found")
         }
-        if(post.isfreezed){
-            throw new ApplicationException('post is already freezed',409)
+        if (post.isfreezed) {
+            throw new ApplicationException('post is already freezed', 409)
         }
-        post.isfreezed=true
+        post.isfreezed = true
         await post.save()
-        return sucessHandler({res,status:200,msg:"Post is freezed now !"})
-// After that we deny user to react or comment on this freezed post but not here
-// we will handle this in (like-unlike  and   createComment ) APIs 
+        return sucessHandler({ res, status: 200, msg: "Post is freezed now !" })
+        // After that we deny user to react or comment on this freezed post but not here
+        // we will handle this in (like-unlike  and   createComment ) APIs 
+    }
+
+    hardDeletePost = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        const postId = req.params.id
+        const user = res.locals.user as HydratedDocument<IUser>
+        const userId = user._id as Types.ObjectId
+        const post = await this.postRepo.findOne({ filter: { _id: postId } })
+        if (!post) {
+            throw new NotFoundError('post not found')
+        }
+
+        if (post.isfreezed) {
+            throw new NotFoundError('post is freezed')
+        }
+        if (!userId.equals(post.createdBy)) {
+            throw new ApplicationException('You are not the owner of this post', 409);
+        }
+
+        const comments = await this.commentRepo.find({ filter: { postId: post._id } })
+        const replies = await this.replyRepo.find({ filter: { postId: post._id } })
+
+        await this.replyRepo.deleteMany({ filter: { postId: post._id } })
+
+        await this.commentRepo.deleteMany({ filter: { postId: post._id } })
+
+        await this.postRepo.deleteOne({ filter: { _id: post._id } })
+
+        return sucessHandler({ res, status: 200, msg: "Post is deleted sucessfully" })
     }
 }

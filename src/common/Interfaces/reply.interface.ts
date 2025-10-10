@@ -1,4 +1,4 @@
-import { Document,Schema } from "mongoose"
+import { Document,Schema,Types } from "mongoose"
 import { Request,Response,NextFunction } from "express"
 
 

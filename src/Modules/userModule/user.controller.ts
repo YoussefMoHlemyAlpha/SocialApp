@@ -34,7 +34,8 @@ const userRoutes={
     sendRequest:'/send-request/:id',
     deleteRequest:'/delete-request/:id',
     unfriend:"/unfriend/:id",
-    acceptRequest:'/accept-request/:id'
+    acceptRequest:'/accept-request/:id',
+    deleteUser:'/delete-user/:id'
 }
 
 userRouter.post(userRoutes.signUp,validation(signUpSchema),userservice.SignUp)
@@ -89,3 +90,4 @@ userRouter.post(userRoutes.unfriend,auth(),userservice.unFriend)
 
 userRouter.post(userRoutes.acceptRequest,auth(),userservice.acceptRequest)
 
+userRouter.delete(userRoutes.deleteUser,userservice.deleteUser)

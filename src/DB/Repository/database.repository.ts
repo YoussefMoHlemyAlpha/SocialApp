@@ -1,6 +1,6 @@
 import { Model,FilterQuery, ProjectionType, QueryOptions, CreateOptions, UpdateQuery } from "mongoose";
 import { IUser } from "../../common/Interfaces/user.interface";
-
+import { DeleteResult } from 'mongodb';
 export class DatabaseRepository <T> {
 
 
@@ -36,4 +36,13 @@ async updateOne({ updatedData, filter }: { updatedData: UpdateQuery<IUser>, filt
     return this.model.findOneAndUpdate(filter, updatedData, { new: true });
 }
 
+  async deleteOne({ filter }: { filter: FilterQuery<T> }): Promise<T | null> {
+    return this.model.findOneAndDelete(filter);
+  }
+
+  async deleteMany({ filter }: { filter: FilterQuery<T> }): Promise<DeleteResult> {
+    return this.model.deleteMany(filter);
+  }
 }
+
+
