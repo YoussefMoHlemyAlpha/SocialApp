@@ -7,7 +7,7 @@ createPost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 LikeandUnlikePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 updatePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 getPostById(req:Request,res:Response,next:NextFunction):Promise<Response>,
-
+freezePost(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 
@@ -27,6 +27,7 @@ export interface IPost extends Document{
     restoredBy?:Schema.Types.ObjectId,
     createdAt?:Date,
     updatedAt?:Date,
-    isDeleted?:boolean
+    isDeleted?:boolean,
+    isfreezed?:boolean
 
 }

@@ -11,7 +11,8 @@ const postRoutes={
     createPost:'/create-post',
     likeAndUnlikePost:'/like-unlike',
     updatePost:'/update-post',
-    getPost:'/get-post/:id'
+    getPost:'/get-post/:id',
+    freezePost:'/freeze-post/:id'
 }
 
 
@@ -23,5 +24,7 @@ postRouter.post(postRoutes.likeAndUnlikePost,auth(),validation(LikeandUnlikeSche
 postRouter.patch(postRoutes.updatePost,auth(),uploadFile({}).array('newattachments', 5),postservice.updatePost)
 
 postRouter.get(postRoutes.getPost,postservice.getPostById)
+
+postRouter.post(postRoutes.freezePost,postservice.freezePost)
 
 

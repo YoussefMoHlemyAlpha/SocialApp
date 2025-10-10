@@ -78,6 +78,10 @@ export const postSchema = new Schema<IPost>({
     isDeleted:{
         type:Boolean,
         default:false
+    },
+    isfreezed:{
+        type:Boolean,
+        default:false
     }
 },{
     timestamps:true,

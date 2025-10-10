@@ -27,6 +27,9 @@ createComment=async(req: Request, res: Response, next: NextFunction): Promise<Re
     if(!post){
         throw new NotFoundError('Not Found Error')
     }
+    if(post.isfreezed){
+            throw new ApplicationException('This post is freezed',409)
+        }
     const postOwner=await this.userRepo.findOne({filter:{_id:post?.createdBy}})
     if (postOwner?.blockUsers.includes(userId)) {
             throw new ApplicationException('You are blocked', 409)

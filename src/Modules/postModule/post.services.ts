@@ -75,6 +75,9 @@ export class PostServices implements IPostServices {
         if (!post) {
             throw new NotFoundError('Post not Found')
         }
+        if(post.isfreezed){
+            throw new ApplicationException('This post is freezed',409)
+        }
         const postOwner = await this.userRepo.findOne({ filter: { _id: post.createdBy } })
         if (postOwner?.blockUsers.includes(user.id)) {
             throw new ApplicationException('You are blocked', 409)
@@ -209,5 +212,23 @@ export class PostServices implements IPostServices {
             throw new NotFoundError('post is not Found')
         }
         return sucessHandler({ res, status: 200, data: post })
+    }
+
+
+
+    freezePost=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+        const postId=req.params.id
+        const post = await this.postRepo.findOne({filter:{_id:postId}})
+        if(!post){
+            throw new NotFoundError("post not found")
+        }
+        if(post.isfreezed){
+            throw new ApplicationException('post is already freezed',409)
+        }
+        post.isfreezed=true
+        await post.save()
+        return sucessHandler({res,status:200,msg:"Post is freezed now !"})
+// After that we deny user to react or comment on this freezed post but not here
+// we will handle this in (like-unlike  and   createComment ) APIs 
     }
 }
