@@ -538,6 +538,14 @@ export class UserServices implements IUserServices {
                 }
             }
         })
+        await user.updateOne({
+            filter: { _id: friend._id },
+            updatedData: {
+                $addToSet: {
+                    friends: user._id 
+                }
+            }
+        })
         await this.userRepo.updateOne({
             filter: { _id: user._id },
             updatedData: {
