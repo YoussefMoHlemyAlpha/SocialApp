@@ -471,6 +471,9 @@ export class UserServices implements IUserServices {
         if (recivieUser.friendRequests.includes(sendUserId)) {
             throw new ApplicationException("You already sent to him friend request ", 409)
         }
+                if (sendUser.friendRequests.includes(recivieUserObjectId)) {
+            throw new ApplicationException("He already sent to him friend request ", 409)
+        }
         if (sendUser.blockUsers.includes(recivieUserObjectId)) {
             throw new ApplicationException("You are not allowed to send friend request to blocked user", 409)
         }
