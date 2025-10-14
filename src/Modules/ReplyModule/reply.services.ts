@@ -27,6 +27,9 @@ export class ReplyServices implements IReplyServices {
     if(!comment){
         throw new NotFoundError('Comment is not Found')
     }
+    if(comment.isfreezed){
+        throw new ApplicationException('comment is freezed',409)
+    }
     const post=await this.postRepo.findOne({filter:{
     _id:comment.postId
     }})

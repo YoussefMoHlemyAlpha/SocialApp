@@ -10,6 +10,7 @@ import { uploadMultipleFiles } from "../../utils/multer/s3.services";
 import { Types,HydratedDocument } from "mongoose";
 import { ReplyRepository } from "../../DB/Repository/reply.repository";
 import { IUser } from "../../common/Interfaces/user.interface";
+import { log } from "console";
 
 export class CommentServices implements ICommentServices{
  constructor() { }
@@ -97,6 +98,9 @@ const comment = await this.Commentrepo.findOne({
 
 if(!comment){
     throw new NotFoundError('Comment Not Found')
+}
+if(comment.isfreezed){
+    throw new ApplicationException('comment is freezed',409)
 }
 const post=await this.PostRepo.findOne({
     filter:{
@@ -214,4 +218,30 @@ deleteComment=async(req: Request, res: Response, next: NextFunction): Promise<Re
 
     return sucessHandler({res,status:200,msg:"Comment is deleted successfully"})
 }
+
+freezeComment=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    const CommentId=req.params.id
+    const user=res.locals.user as HydratedDocument<IUser>
+    const userId = user._id as Types.ObjectId
+    const comment=await this.Commentrepo.findOne({filter:{_id:CommentId}})
+    
+    if(!comment){
+        throw new NotFoundError('Comment not Found')
+    }
+
+    if(!userId.equals(comment.createdBy)){
+        throw new ApplicationException('You are not The owner of this comment',409)
+    }
+    if(comment.isfreezed){
+        throw new ApplicationException('This Comment is already freezed',409)
+    }
+
+    comment.isfreezed=true
+    await comment.save()
+
+    return sucessHandler({res,status:201,msg:"comment is freezed Now"})
+}
+
+
+
 }

@@ -1,4 +1,4 @@
-import { Document,Schema } from "mongoose"
+import { Document,Schema,Types } from "mongoose"
 import { Request,Response,NextFunction } from "express"
 
 export interface ICommentServices {
@@ -7,6 +7,7 @@ export interface ICommentServices {
     getCommentById(req:Request,res:Response,next:NextFunction):Promise<Response>,
     getCommentWithReply(req:Request,res:Response,next:NextFunction):Promise<Response>,
     deleteComment(req:Request,res:Response,next:NextFunction):Promise<Response>,
+    freezeComment(req:Request,res:Response,next:NextFunction):Promise<Response>,
 }
 
 export interface IComment extends Document{
@@ -14,11 +15,12 @@ export interface IComment extends Document{
     attachments?:string[],
     postId?:Schema.Types.ObjectId,
     assetFolderId?:string,
-    createdBy?: Schema.Types.ObjectId,
+    createdBy?: Types.ObjectId,
     tags?:Schema.Types.ObjectId[],
     deletedAt?:Date,
     deletedBy?:Schema.Types.ObjectId,
     createdAt?:Date,
     updatedAt?:Date,
     isDeleted?:boolean,
+    isfreezed?:boolean
 }

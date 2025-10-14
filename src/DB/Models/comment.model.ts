@@ -44,7 +44,12 @@ export const commentSchema=new Schema<IComment>({
      isDeleted:{
         type:Boolean,
         default:false
+     },
+     isfreezed:{
+        type:Boolean,
+        default:false
      }
+     
 },{
     timestamps:true,
     toJSON:{virtuals:true},
