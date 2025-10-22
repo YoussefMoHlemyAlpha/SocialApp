@@ -1,7 +1,7 @@
 import { IUser } from "../../common/Interfaces/user.interface";
 import { userModel } from "../Models/user.model";
 import { DatabaseRepository } from "./database.repository";
-import { FilterQuery, ObjectId, UpdateQuery } from "mongoose";
+import { FilterQuery, ObjectId, QueryOptions, UpdateQuery } from "mongoose";
 
 
 export class UserRepository extends DatabaseRepository<IUser>{
@@ -13,7 +13,7 @@ async findByEmail(email: string): Promise<IUser | null> {
   return this.findOne({ filter: { email } });
 }
 
-async findById(id: ObjectId): Promise<IUser | null> {
+async findById(id: ObjectId,options?:any): Promise<IUser | null> {
   return this.findOne({ filter: { _id : id} });
 }
 

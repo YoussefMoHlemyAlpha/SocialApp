@@ -17,6 +17,7 @@ import { promisify } from "util";
 import { pipeline } from "stream";
 import { PostRepository } from "../../DB/Repository/post.repository";
 import { ReplyRepository } from "../../DB/Repository/reply.repository";
+import { populate } from "dotenv";
 
 const createS3WriteStreamPipe = promisify(pipeline)
 
@@ -135,8 +136,14 @@ export class UserServices implements IUserServices {
     }
 
     // get user for testing authentication only not actual api 
-    getuser(req: Request, res: Response, next: NextFunction): Response<IUser> {
-        const user = res.locals.user
+    getuser=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+        const userId = res.locals.user.id
+        console.log(userId)
+        const user = await this.userRepo.findOne({ filter: { _id: userId },options:{populate:"friends"} })
+        console.log(user)
+        if(!user){
+            throw new NotFoundError()
+        }
         return sucessHandler({ res, status: 200, data: user })
     }
 
