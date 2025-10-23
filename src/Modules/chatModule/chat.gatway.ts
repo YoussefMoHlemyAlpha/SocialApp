@@ -4,7 +4,7 @@ import { ChatEvents } from "./chat.events"
 export class GateWay {
     private chatEvents = new ChatEvents()
     constructor() { }
-    register = (socket: AuthentictedSocket) => {
-        this.chatEvents.sayHi(socket)
+    register(socket: AuthentictedSocket) {
+        this.chatEvents.sendMessage(socket)
     }
 }

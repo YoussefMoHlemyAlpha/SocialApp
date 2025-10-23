@@ -1,8 +1,8 @@
-import { HydratedDocument, Types,Schema, model, models } from "mongoose"
+import { HydratedDocument, Types,Schema, model, models,Document } from "mongoose"
 
 
 
-export interface IMessage{
+export interface IMessage extends Document{
 createdAt:Date,
 createdBy:Types.ObjectId,
 content:string,
@@ -28,7 +28,7 @@ const messageSchema=new Schema<IMessage>({
 
 },{timestamps:true})
 
-export interface IChat{
+export interface IChat extends Document{
     // OVO
     participants:Types.ObjectId[]
     message:IMessage[]
@@ -50,13 +50,13 @@ export type HChatDocument= HydratedDocument<IChat>
 const chatSchema=new Schema<IChat>({
     participants:[{
         type:Schema.Types.ObjectId,
-        ref:"User",
+        ref:"user",
         required:true
     }],
     message:[messageSchema],
         createdBy:{
         type:Schema.Types.ObjectId,
-        ref:"User",
+        ref:"user",
         required:true
     },
     group:String,

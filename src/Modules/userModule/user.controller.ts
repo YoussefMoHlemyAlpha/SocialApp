@@ -4,10 +4,11 @@ import { validation } from '../../middleware/validation.middleware'
 import { signUpSchema ,resendOtpSchema, LoginSchema, forgetPasswordSchema, resetPasswordSchema, ConfirmEmailSchema, updateEmailSchema, ConfirmupdateEmailSchema, updatePasswordSchema, updateBasicInfoSchema, verifyTwostepsSechema, confirmLoginSchema} from './user.validation'
 import { auth } from '../../middleware/auth.middleware'
 import { uploadFile } from '../../utils/multer/multer'
+import chatRouter from '../chatModule/chat.controller'
 
 export const userRouter=Router()
 const userservice=new UserServices()
-
+userRouter.use('/:userId/chat',chatRouter)
 const userRoutes={
     signUp:'/sign-up',
     confirmEmail:'/confirm-email',
