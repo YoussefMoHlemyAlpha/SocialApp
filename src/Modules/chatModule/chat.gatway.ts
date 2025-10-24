@@ -6,5 +6,6 @@ export class GateWay {
     constructor() { }
     register(socket: AuthentictedSocket) {
         this.chatEvents.sendMessage(socket)
+        this.chatEvents.joinRoom(socket)
     }
 }

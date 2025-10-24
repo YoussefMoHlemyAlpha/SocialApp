@@ -9,5 +9,12 @@ export class ChatEvents {
         }
     )
      }
+
+     joinRoom=(socket:AuthentictedSocket)=>{
+        socket.on('join_room',async({roomId})=>{
+            await this.chatSocketServices.joinRoom(socket,roomId)
+        }
+    )
     }
+}
 

@@ -3,6 +3,7 @@ import { UserRepository } from "../../DB/Repository/user.repository";
 import { NotFoundError } from "../../utils/Error";
 import { AuthentictedSocket, connectedSockets } from "../gateway/gateway";
 import { chatRepo } from "./chat.repo";
+import { $Command } from "@aws-sdk/client-s3";
 
 
 
@@ -44,13 +45,38 @@ export class chatSocketServices {
                     }
                 }
             });
-socket.emit('successMessage',data.content)
-socket.to(connectedSockets.get(to._id.toString() as string) || []).emit('newMessage',{content:data.content,from:socket.user})
+            socket.emit('successMessage', data.content)
+            socket.to(connectedSockets.get(to._id.toString() as string) || []).emit('newMessage', { content: data.content, from: socket.user })
 
         } catch (error) {
             socket.emit('customError', error)
         }
 
+    }
+
+    joinRoom = async (socket: AuthentictedSocket, roomId: string) => {
+        try {
+            const group = await this.chatRepo.findOne({
+                filter: {
+                    roomId,
+                    participants: {
+                        $in: [socket.user?._id]
+                    },
+                    group: {
+                        $exists: true
+                    }
+                }
+            })
+            if (!group) {
+                throw new NotFoundError('group not found')
+            }
+            socket.join(group.roomId as string)
+
+
+
+        } catch (error) {
+            socket.emit('customError', error)
+        }
     }
 
 }
