@@ -20,6 +20,9 @@ const messageSchema=new Schema<IMessage>({
     },
     content:{
         type:String,
+        maxlength:1000,
+        minlength:1,
+        trim: true,
         required:true
     },
     createdAt:Date,

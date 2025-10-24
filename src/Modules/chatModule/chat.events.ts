@@ -16,5 +16,11 @@ export class ChatEvents {
         }
     )
     }
+
+    sendGroupMessage=(socket:AuthentictedSocket)=>{
+        socket.on('sendGroupMessage',({content,groupId}:{content:string,groupId:string})=>{
+            return this.chatSocketServices.sendGroupMessage(socket,{content,groupId})
+        })
+    }
 }
 

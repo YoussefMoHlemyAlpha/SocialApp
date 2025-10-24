@@ -79,4 +79,37 @@ export class chatSocketServices {
         }
     }
 
+    sendGroupMessage=async(socket:AuthentictedSocket,data:{content:string,groupId:string})=>{
+     try{
+    const createdBy=socket.user?._id
+    const group=await this.chatRepo.findOne({
+        filter:{_id:data.groupId ,
+            participants:{
+                $in:[createdBy]
+            },
+            group:{
+                $exists:true
+            }
+ 
+        }
+
+})
+
+if(!group){
+    throw new NotFoundError('group not found')  
+}
+
+await this.chatRepo.updateOne({
+    filter:{_id:group._id},
+    updatedData:{$push:{message:{content:data.content,createdBy:createdBy,createdAt:new Date()}}}
+})
+socket.emit('successMessage',data.content)
+socket.to(group.roomId as string).emit('newMessage',{content:data.content,from:socket.user,groupId:group._id})
+     }catch(error){
+        socket.emit('customError',error)
+     }
+    
+
+}
+
 }

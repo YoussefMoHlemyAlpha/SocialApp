@@ -7,5 +7,6 @@ export class GateWay {
     register(socket: AuthentictedSocket) {
         this.chatEvents.sendMessage(socket)
         this.chatEvents.joinRoom(socket)
+        this.chatEvents.sendGroupMessage(socket)
     }
 }
