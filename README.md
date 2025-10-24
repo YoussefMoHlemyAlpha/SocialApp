@@ -1,6 +1,6 @@
 # SocialApp
 
-SocialApp is a robust, scalable backend API for a modern social networking platform. Built with Node.js, Express, TypeScript, MongoDB, and AWS S3, it provides a solid foundation for user management, content sharing, and secure media storage. The architecture emphasizes modularity, maintainability, and extensibility for future growth.
+SocialApp is a robust, scalable backend API for a modern social networking platform. Built with Node.js, Express, TypeScript, MongoDB,AWS S3 and Web Socket.it provides a solid foundation for user management, content sharing, and secure media storage. The architecture emphasizes modularity, maintainability, and extensibility for future growth.
 
 > **Status:** 🚧 _This project is under active development. Features, APIs, and structure are subject to change._
 
@@ -17,7 +17,7 @@ SocialApp is a robust, scalable backend API for a modern social networking platf
 - **AWS S3 Integration:** Secure upload and storage of profile and cover images via Amazon S3.
 - **Email Notifications:** Utility functions for sending emails (e.g., verification, password reset).
 - **File Uploads:** Multer middleware for handling multipart/form-data and direct S3 uploads.
-
+- **Web Sockets:**Possibility for sending Messages between user to user and user to groups
 
 ## Other Features
 - **Send Friend Request** 
@@ -28,6 +28,8 @@ SocialApp is a robust, scalable backend API for a modern social networking platf
 - **Create users ,Posts ,Comments and replies** 
 - **Update users ,Posts ,Comments and replies** 
 - **Delete users ,Posts ,Comments and replies** 
+- **Create and join Groups for chats**
+
 
 
 ---
@@ -69,6 +71,16 @@ src/
     validation.middleware.ts
     auth.middleware.ts
   Modules/
+    chatModule/
+    chat.DTO.ts
+    chat.events.ts
+    chat.gatway.ts
+    chat.model.ts
+    chat.repo.ts
+    chat.rest.services.ts
+    chat.sockets.services.ts
+    chat.types.ts
+    chat.validation.ts
     postModule/
       post.controller.ts
       post.services.ts
@@ -86,6 +98,8 @@ src/
       comment.services.ts
       comment.DTO.ts
       comment.validation.ts
+    geteway/
+      gateway.ts  
     replyModule/
       reply.controller.ts
       reply.services.ts
