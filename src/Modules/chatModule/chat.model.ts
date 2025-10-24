@@ -15,7 +15,7 @@ export type HMessageDocument= HydratedDocument<IMessage>
 const messageSchema=new Schema<IMessage>({
     createdBy:{
         type:Schema.Types.ObjectId,
-        ref:"User",
+        ref:"user",
         required:true
     },
     content:{
