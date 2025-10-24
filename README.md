@@ -169,6 +169,7 @@ The S3 integration is managed in `utils/multer/s3config.ts` and `utils/multer/s3
 - **dotenv** — Environment configuration
 - **chalk** — Terminal string styling
 - **AWS S3** — Cloud storage for images
+- **WebSocket** — Sending Messages between users 
 - **Multer** — File upload middleware
 - **bcrypt** — Password hashing
 - **jsonwebtoken** — JWT authentication
