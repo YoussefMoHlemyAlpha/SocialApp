@@ -43,6 +43,9 @@ async updateOne({ updatedData, filter }: { updatedData: UpdateQuery<IUser>, filt
   async deleteMany({ filter }: { filter: FilterQuery<T> }): Promise<DeleteResult> {
     return this.model.deleteMany(filter);
   }
+  async find({filter,options}:{filter?:FilterQuery<T>,options?:any}): Promise<T[]> {
+    return this.model.find({...filter,deleteAt:{$exists:false}},options); 
+  }
 }
 
 

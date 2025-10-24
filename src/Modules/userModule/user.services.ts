@@ -18,14 +18,17 @@ import { pipeline } from "stream";
 import { PostRepository } from "../../DB/Repository/post.repository";
 import { ReplyRepository } from "../../DB/Repository/reply.repository";
 import { populate } from "dotenv";
+import { chatRepo } from "../chatModule/chat.repo";
+import { id } from "zod/v4/locales";
 
 const createS3WriteStreamPipe = promisify(pipeline)
 
 export class UserServices implements IUserServices {
     private userRepo = new UserRepository();
-    private postRepo= new PostRepository();
-    private commentRepo=new PostRepository();
-     private replyRepo=new ReplyRepository();
+    private postRepo = new PostRepository();
+    private commentRepo = new PostRepository();
+    private replyRepo = new ReplyRepository();
+    private chatRepo = new chatRepo();
     constructor() { }
 
 
@@ -136,15 +139,24 @@ export class UserServices implements IUserServices {
     }
 
     // get user for testing authentication only not actual api 
-    getuser=async(req: Request, res: Response, next: NextFunction): Promise<Response> =>{
+    getuser = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         const userId = res.locals.user.id
-        console.log(userId)
-        const user = await this.userRepo.findOne({ filter: { _id: userId },options:{populate:"friends"} })
-        console.log(user)
-        if(!user){
+        const user = await this.userRepo.findOne({ filter: { _id: userId }, options: { populate: "friends" } })
+        if (!user) {
             throw new NotFoundError()
         }
-        return sucessHandler({ res, status: 200, data: user })
+        const groups = await this.chatRepo.find({
+            filter: {
+                participants: {
+                    $all: [user._id as Types.ObjectId]
+                },
+                group: {
+                    $exists: true
+                }
+            }
+
+        })
+        return sucessHandler({ res, status: 200, data: { user, groups } })
     }
 
 
@@ -478,7 +490,7 @@ export class UserServices implements IUserServices {
         if (recivieUser.friendRequests.includes(sendUserId)) {
             throw new ApplicationException("You already sent to him friend request ", 409)
         }
-                if (sendUser.friendRequests.includes(recivieUserObjectId)) {
+        if (sendUser.friendRequests.includes(recivieUserObjectId)) {
             throw new ApplicationException("He already sent to him friend request ", 409)
         }
         if (sendUser.blockUsers.includes(recivieUserObjectId)) {
@@ -552,7 +564,7 @@ export class UserServices implements IUserServices {
             filter: { _id: friend._id },
             updatedData: {
                 $addToSet: {
-                    friends: user._id 
+                    friends: user._id
                 }
             }
         })
@@ -593,37 +605,45 @@ export class UserServices implements IUserServices {
 
         return sucessHandler({ res, status: 200, msg: `${unfriend.firstName} is not Your friend now` })
     }
-    
 
 
-    deleteUser=async(req: Request, res: Response, next: NextFunction): Promise<Response>=> {
-        const deleteduserId=req.params.id
-        const deletedUser=await this.userRepo.findOne({filter:{_id:deleteduserId}})
-        if(!deletedUser){
+
+    deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        const deleteduserId = req.params.id
+        const deletedUser = await this.userRepo.findOne({ filter: { _id: deleteduserId } })
+        if (!deletedUser) {
             throw new NotFoundError('user not found')
         }
-        if(deletedUser.role=='admin'){
-            throw new ApplicationException('You can not delete admin',409)
+        if (deletedUser.role == 'admin') {
+            throw new ApplicationException('You can not delete admin', 409)
         }
 
-        await this.replyRepo.deleteMany({filter:{
-        createdBy:deletedUser._id
-       }})
-        await this.commentRepo.deleteMany({filter:{
-        createdBy:deletedUser._id
-       }})
-        await this.postRepo.deleteMany({filter:{
-        createdBy:deletedUser._id
-       }})
-       await this.userRepo.deleteOne({filter:{
-        _id:deletedUser._id
-       }})
-        
-     return sucessHandler({res,status:200,msg:'user deleted successfully'})
+        await this.replyRepo.deleteMany({
+            filter: {
+                createdBy: deletedUser._id
+            }
+        })
+        await this.commentRepo.deleteMany({
+            filter: {
+                createdBy: deletedUser._id
+            }
+        })
+        await this.postRepo.deleteMany({
+            filter: {
+                createdBy: deletedUser._id
+            }
+        })
+        await this.userRepo.deleteOne({
+            filter: {
+                _id: deletedUser._id
+            }
+        })
+
+        return sucessHandler({ res, status: 200, msg: 'user deleted successfully' })
 
     }
 
-    
+
 
 
 
