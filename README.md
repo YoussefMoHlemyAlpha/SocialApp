@@ -72,15 +72,15 @@ src/
     auth.middleware.ts
   Modules/
     chatModule/
-    chat.DTO.ts
-    chat.events.ts
-    chat.gatway.ts
-    chat.model.ts
-    chat.repo.ts
-    chat.rest.services.ts
-    chat.sockets.services.ts
-    chat.types.ts
-    chat.validation.ts
+      chat.DTO.ts
+      chat.events.ts
+      chat.gatway.ts
+      chat.model.ts
+      chat.repo.ts
+      chat.rest.services.ts
+      chat.sockets.services.ts
+      chat.types.ts
+      chat.validation.ts
     postModule/
       post.controller.ts
       post.services.ts
